@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "186895787525",
+    "project_id": "naham-83039",
+    "storage_bucket": "naham-83039.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:186895787525:android:2895a3f04ce29c59a05e6c",
+        "android_client_info": {
+          "package_name": "com.tadafuq.naham"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBw73OC7lXYsKxeexicwuO3gT8kyn3NfWo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
