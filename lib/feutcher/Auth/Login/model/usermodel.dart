@@ -9,7 +9,7 @@ Usermodel usermodelFromJson(String str) => Usermodel.fromJson(json.decode(str));
 String usermodelToJson(Usermodel data) => json.encode(data.toJson());
 
 class Usermodel {
-  bool ?success;
+  bool? success;
   Data ?data;
   String? message;
 
@@ -34,22 +34,22 @@ class Usermodel {
 
 class Data {
   int ?id;
-  String? name;
+  String ?name;
   String ?email;
-  String? lastSignInTime;
-  String ?uid;
-  dynamic status;
+  DateTime ? lastSignInTime;
+  String? uid;
+  String? status;
   String? fcmToken;
   String ?guard;
-  int ?isOnline;
+  int? isOnline;
   int? sectionId;
-  int ?groupId;
-  dynamic profileImage;
+  int? groupId;
+  String? profileImage;
   double? lat;
   double? lng;
-  String? createdAt;
-  String? updatedAt;
-  String? accessToken;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  String ?accessToken;
   String? profileImageFullUrl;
   Group? group;
 
@@ -79,7 +79,7 @@ class Data {
     id: json["id"],
     name: json["name"],
     email: json["email"],
-    lastSignInTime: json["lastSignInTime"],
+    lastSignInTime: DateTime.parse(json["lastSignInTime"]),
     uid: json["uid"],
     status: json["status"],
     fcmToken: json["FcmToken"],
@@ -90,8 +90,8 @@ class Data {
     profileImage: json["profile_image"],
     lat: json["lat"],
     lng: json["lng"],
-    createdAt: json["created_at"],
-    updatedAt: json["updated_at"],
+    createdAt: DateTime.parse(json["created_at"]),
+    updatedAt: DateTime.parse(json["updated_at"]),
     accessToken: json["access_token"],
     profileImageFullUrl: json["profile_image_full_url"],
     group: Group.fromJson(json["group"]),
@@ -101,7 +101,7 @@ class Data {
     "id": id,
     "name": name,
     "email": email,
-    "lastSignInTime": lastSignInTime,
+    "lastSignInTime": lastSignInTime!.toIso8601String(),
     "uid": uid,
     "status": status,
     "FcmToken": fcmToken,
@@ -112,8 +112,8 @@ class Data {
     "profile_image": profileImage,
     "lat": lat,
     "lng": lng,
-    "created_at": createdAt,
-    "updated_at": updatedAt,
+    "created_at": createdAt!.toIso8601String(),
+    "updated_at": updatedAt!.toIso8601String(),
     "access_token": accessToken,
     "profile_image_full_url": profileImageFullUrl,
     "group": group!.toJson(),
@@ -121,7 +121,7 @@ class Data {
 }
 
 class Group {
-  int ?id;
+  int? id;
   String? name;
 
   Group({

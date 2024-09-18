@@ -31,7 +31,7 @@ class LoginController extends GetxController {
       User? user = userCredential.user;
       print('User signed in: ${user!.uid}');
       if (user.uid != null) {
-        Get.to(() => MainScreen());
+        // Get.to(() => MainScreen());
         IsLogin = false;
         update();
       }
@@ -68,10 +68,12 @@ class LoginController extends GetxController {
             validateStatus: (status) => true,
           ),
           data: data);
-      // print(response.data);
+      print(response.data);
+      print(response.statusCode);
       if (response.statusCode == 200) {
         Usermodel usermodel = Usermodel();
         usermodel = Usermodel.fromJson(response.data);
+        print(usermodel);
         CacheHelper.saveData(key: isLoginkey, value: true);
         CacheHelper.saveData(key: useridKey, value: usermodel.data!.id);
         CacheHelper.saveData(key: usernameKey, value: usermodel.data!.name);
@@ -82,8 +84,8 @@ class LoginController extends GetxController {
         CacheHelper.saveData(
             key: userphotoKey, value: usermodel.data!.profileImageFullUrl);
         CacheHelper.saveData(key: usergurdKey, value: usermodel.data!.guard);
-
-        SignINFireBase();
+        Get.toNamed("/mainscreen");
+        // SignINFireBase();
         update();
       } else if (response.statusCode == 401) {
         IsLogin = false;
@@ -121,7 +123,7 @@ class LoginController extends GetxController {
       update();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: Colors.red.shade900,
-        duration: Duration(seconds: 5),
+        duration: Duration(seconds:10),
         content: Text('Failed to sign in: $e.'),
       ));
     }

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 class MicRecordBtn extends StatelessWidget {
-  const MicRecordBtn({super.key});
+  final VoidCallback onLongPress;
+  final onLongPressEnd;
+  final bool isPersing ;
+  const MicRecordBtn({super.key,required this.onLongPress,required this.onLongPressEnd, required this.isPersing});
 
   @override
   Widget build(BuildContext context) {
@@ -9,10 +12,10 @@ class MicRecordBtn extends StatelessWidget {
     size = MediaQuery.of(context).size;
     height = size.height;
     width = size.width;
-    return InkWell(
-      borderRadius: BorderRadius.circular(60),
-      onTap: (){print("obke");},
-
+    return GestureDetector(
+      onTap: onLongPress,
+      // onLongPress: onLongPress,
+      // onLongPressEnd:onLongPressEnd ,
       child: Container(
         margin: EdgeInsets.only(left: 20,right: 20,top: 50,bottom: 30),
         width: width* 0.5,
@@ -32,7 +35,7 @@ class MicRecordBtn extends StatelessWidget {
         child:Container(
           margin: EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isPersing?Colors.green:Colors.white,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(

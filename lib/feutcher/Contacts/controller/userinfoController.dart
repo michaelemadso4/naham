@@ -12,6 +12,7 @@ import 'package:naham/helper/sherdprefrence/shardprefKeyConst.dart';
 import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 
 class UserInfoController extends GetxController{
@@ -22,6 +23,36 @@ class UserInfoController extends GetxController{
     userid = CacheHelper.getData(key: userprofielkey);
     print(userid);
     super.onInit();
+  }
+
+  late WebSocketChannel _channel;
+
+  void _connectToSignalingServer() {
+    _channel = WebSocketChannel.connect(Uri.parse('wss://naham.tadafuq.ae?user_id=12&token=33|HhmpjPh2L9hDEJS3DOy1VrjCfDeHq8MG5yZAR4ozefca5a30'));
+
+    _channel.stream.listen((message) {
+      final data = jsonDecode(message);
+      print("Message ........ " + message);
+    });
+
+  }
+
+  bool isPerssing = false;
+  onLongpers(){
+    _connectToSignalingServer();
+    _channel.sink.add(jsonEncode({
+      "message":"hellon 12",
+      "to_user_id":"21"
+    }));
+
+
+    isPerssing = true; update();
+    print(isPerssing);
+  }
+
+  onstopLongpers(){
+    isPerssing = false; update();
+    print(isPerssing);
   }
 
   Future GetUserInfo()async{

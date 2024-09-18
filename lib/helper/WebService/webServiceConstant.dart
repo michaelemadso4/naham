@@ -1,4 +1,4 @@
-final String apiurl = 'http://192.168.1.20:8000/api/';
+final String apiurl = 'https://naham.tadafuq.ae/api/';
 // final String apiurl = 'https://xyz.tadafuq.ae/api/';
 final String apiregister = 'user/register';
 final String apilogin = 'user/login';

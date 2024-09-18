@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:naham/helper/WebService/webServiceConstant.dart';
@@ -29,11 +30,23 @@ class Contactcontroller extends GetxController{
       var dio = Dio();
       var response = await dio.request(
         '${apiurl}user/group_Users',
-        options: Options(
+        options:
+         Options(
           method: 'GET',
           headers: headers,
         ),
       );
+      dio.interceptors.add(DioCacheManager(CacheConfig(baseUrl:"${apiurl}user/group_Users" )).interceptor);
+      dio.interceptors.add(InterceptorsWrapper(onRequest: (options,handler)async{
+        options.headers=headers;
+        return handler.next(options);
+      },
+      onResponse: (response,handler){
+        return handler.next(response);
+      },onError: (error,handler){
+        return handler.next(error);
+          }
+      ));
 
       if (response.statusCode == 200) {
         print(json.encode(response.data));
