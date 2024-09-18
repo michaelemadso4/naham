@@ -37,13 +37,24 @@ class ContactsScreen extends StatelessWidget {
                 Text('Contacts', textScaleFactor:
                 ScaleSize.textScaleFactor(
                     context),),
-                Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(45),
-                    color: Colors.white.withOpacity(0.3,),
-                  ),
-                  child: Icon(Icons.person),
+                GetBuilder(
+                  init: Contactcontroller(context: context),
+                  builder: (controller) {
+                    return GestureDetector(
+
+                     onLongPress: (){
+                       controller.LogOut();
+                     },
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(45),
+                          color: Colors.white.withOpacity(0.3,),
+                        ),
+                        child: Icon(Icons.person),
+                      ),
+                    );
+                  }
                 ),
               ],),
           ),

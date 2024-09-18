@@ -54,6 +54,7 @@ dependencies:
   record: ^5.1.2
   path_provider: ^2.1.4
   video_player: ^2.9.1
+  fluttertoast: ^8.2.8
   
 
 dev_dependencies:

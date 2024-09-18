@@ -281,11 +281,11 @@ class Chatcontactscreen extends StatelessWidget {
                               isPersing: controller.isTalking,
                               onLongPressEnd: (details) {
                                 //_stopTalking();
-                                controller.StopTalkini();
+                                controller.stopTalking();
                               },
                               onLongPress: () {
                                 //_startTalking();
-                                controller.isTalking? controller.StopTalkini():controller.StartTalkini();
+                                controller.isTalking? controller.stopTalking():controller.startTalking();
                               },
                             );
                           }),

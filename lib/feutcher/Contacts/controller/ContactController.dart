@@ -19,6 +19,11 @@ class Contactcontroller extends GetxController{
     GetGroupUsers();
     super.onInit();
   }
+  
+  LogOut()async{
+    CacheHelper.clear();
+    Get.toNamed("/login");
+  }
 
   Future GetGroupUsers()async{
     String access_token =  CacheHelper.getData(key: access_tokenkey);
