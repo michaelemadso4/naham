@@ -88,9 +88,9 @@ class PushToTalk extends GetxController {
         {'urls': 'stun:stun1.l.google.com:19302'},
         {'urls': 'stun:stun2.l.google.com:19302'},
         {
-          'urls': 'turns:34.38.50.190:3478',
-          'username': 'naham',
-          'credential': 'TyALteSZ8u5XcC92HdnWqf'
+          'urls': 'turns:turn.fav.on24.com:443',
+          'username': 'on24user',
+          'credential': 'nev2Eni@'
         },
       ],
     };
@@ -228,7 +228,6 @@ class PushToTalk extends GetxController {
   bool isLoading = false;
   void _startTalking() async {
     isLoading = true;
-    update();
     if (_localStream == null || _localStream!.getTracks().isEmpty) {
       print("Local stream is null");
       return;
@@ -252,6 +251,7 @@ class PushToTalk extends GetxController {
     webrtc.RTCSessionDescription offer = await _peerConnection.createOffer(constraints);
     await _peerConnection.setLocalDescription(offer);
 
+    update();
     _sendToServer({'type': 'offer', 'sdp': offer.sdp, 'iceRestart': true});
 
     // Set isTalking = true only on the device that sends the offer
