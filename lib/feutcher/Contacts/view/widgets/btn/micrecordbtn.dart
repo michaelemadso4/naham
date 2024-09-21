@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 class MicRecordBtn extends StatelessWidget {
   final VoidCallback onLongPress;
   final onLongPressEnd;
-  final bool isPersing ;
-  const MicRecordBtn({super.key,required this.onLongPress,required this.onLongPressEnd, required this.isPersing});
+  final bool isPersing, isLoading ;
+  const MicRecordBtn({super.key,required this.onLongPress,required this.onLongPressEnd,required this.isLoading, required this.isPersing});
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class MicRecordBtn extends StatelessWidget {
               ),
             ],
           ),
-          child: Icon(Icons.mic_none,color: Colors.red,
+          child: isLoading?CircularProgressIndicator():Icon(Icons.mic_none,color: Colors.red,
             size: 50,
           ),
         ),

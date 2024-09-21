@@ -22,6 +22,8 @@ class Contactcontroller extends GetxController{
   
   LogOut()async{
     CacheHelper.clear();
+    CacheHelper.removeData(key:isLoginkey );
+    CacheHelper.removeData(key:access_tokenkey );
     Get.toNamed("/login");
   }
 

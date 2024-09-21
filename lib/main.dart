@@ -11,20 +11,10 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'firebase_options.dart';
 import 'routes/app_pages.dart';
 
-late WebSocketChannel _channel;
-void _connectToSignalingServer() {
-  _channel = WebSocketChannel.connect(Uri.parse('wss://naham.tadafuq.ae?user_id=12&token=33|HhmpjPh2L9hDEJS3DOy1VrjCfDeHq8MG5yZAR4ozefca5a30'));
 
-  _channel.stream.listen((message) {
-    final data = jsonDecode(message);
-    print("Message ........ " + message);
-  });
-
-}
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
   await CacheHelper.init();
-  _connectToSignalingServer();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

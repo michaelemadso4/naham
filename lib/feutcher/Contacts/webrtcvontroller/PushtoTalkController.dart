@@ -25,10 +25,20 @@ class PushToTalk extends GetxController {
     _connectToSignalingServer();
   }
 
+ @override
+  void onClose() {
+    // TODO: implement onClose
+   _cleanupResources();
+   print("close()++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    super.onClose();
+  }
+
   @override
   void dispose() {
-    _cleanupResources();
     super.dispose();
+    _cleanupResources();
+    print("dispose()++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+
   }
 
   startTalking(){
@@ -47,6 +57,7 @@ class PushToTalk extends GetxController {
     _peerConnection.onIceCandidate = _handleIceCandidate;
     _peerConnection.onAddStream = _handleRemoteStream;
     _peerConnection.onIceConnectionState = _handleIceConnectionState;
+
   }
 
   Future<webrtc.MediaStream> _getUserMedia() async {
@@ -77,9 +88,9 @@ class PushToTalk extends GetxController {
         {'urls': 'stun:stun1.l.google.com:19302'},
         {'urls': 'stun:stun2.l.google.com:19302'},
         {
-          'urls': 'turns:turn.fav.on24.com:443',
-          'username': 'on24user',
-          'credential': 'nev2Eni@',
+          'urls': 'turns:34.38.50.190:3478',
+          'username': 'naham',
+          'credential': 'TyALteSZ8u5XcC92HdnWqf'
         },
       ],
     };
@@ -161,6 +172,7 @@ class PushToTalk extends GetxController {
       textColor: Colors.white,
       fontSize: 16.0,
     );
+    stopTalking();
     _sendToServer({'type': 'terminate'});
     Future.delayed(Duration(seconds: 5), _restartConnection);
   }
@@ -196,9 +208,12 @@ class PushToTalk extends GetxController {
   }
 
   void _handleStop() {
-    isTalking = false;
-    update();
-    _localStream!.getAudioTracks().first.enabled = false;
+    if (isTalking) {
+      // Only disable the mic if this device was the one talking
+      _localStream?.getAudioTracks().first.enabled = false;
+      isTalking = false;
+      update();
+    }
   }
 
   // ============================= Media Control =============================
@@ -210,7 +225,10 @@ class PushToTalk extends GetxController {
     print("Playing received audio stream.");
   }
 
+  bool isLoading = false;
   void _startTalking() async {
+    isLoading = true;
+    update();
     if (_localStream == null || _localStream!.getTracks().isEmpty) {
       print("Local stream is null");
       return;
@@ -220,7 +238,11 @@ class PushToTalk extends GetxController {
       print("No audio tracks available.");
       return;
     }
-    audioTracks.first.enabled = true;
+    if(_peerConnection.signalingState == webrtc.RTCSignalingState.RTCSignalingStateStable) {
+      audioTracks.first.enabled = true;
+      isTalking = true;
+      isLoading = false;
+    }
 
     _localStream?.getTracks().forEach((track) {
       _peerConnection.addTrack(track, _localStream!);
@@ -229,17 +251,26 @@ class PushToTalk extends GetxController {
     var constraints = <String, dynamic>{'iceRestart': true};
     webrtc.RTCSessionDescription offer = await _peerConnection.createOffer(constraints);
     await _peerConnection.setLocalDescription(offer);
+
     _sendToServer({'type': 'offer', 'sdp': offer.sdp, 'iceRestart': true});
 
-    isTalking = true;
-    update();
+    // Set isTalking = true only on the device that sends the offer
+    // isTalking = true;
+    // update();
   }
 
   void _stopTalking() {
+    // This method is triggered when the local device presses the mic stop button
+    isLoading = false;
     isTalking = false;
-    _localStream!.getAudioTracks().first.enabled = false;
+
+    // Disable the audio track only on the local device
+    _localStream?.getAudioTracks().first.enabled = false;
+
+    // Send a "stop" signal to the other device via WebSocket
     _sendToServer({'type': 'stop'});
-    update();
+
+    update();  // Update the UI to reflect the change in isTalking state
   }
 
   // ============================= Error and Restart Handlers =============================
@@ -258,8 +289,9 @@ class PushToTalk extends GetxController {
       textColor: Colors.white,
       fontSize: 16.0,
     );
+    stopTalking();
 
-    isTalking = false;
+    // isTalking = false;
     update();
   }
 
@@ -286,8 +318,30 @@ class PushToTalk extends GetxController {
   void _showConnectionToast(webrtc.RTCIceConnectionState state) {
     if (state == webrtc.RTCIceConnectionState.RTCIceConnectionStateConnected) {
       _showToast("Connection established!", Colors.green);
+
+      // Set isTalking to true only if the local user initiated the call by pressing the mic button
+      if (isLoading) {
+        isTalking = true;  // Set isTalking only for the mic-initiating device
+      }
+
+      isLoading = false;
+      update();
+
     } else if (state == webrtc.RTCIceConnectionState.RTCIceConnectionStateCompleted) {
       _showToast("Connection completed!", Colors.blue);
+
+      if (isLoading) {
+        isTalking = true;  // Set isTalking for mic-initiating device only
+      }
+
+      isLoading = false;
+      update();
+
+    } else if (state == webrtc.RTCIceConnectionState.RTCIceConnectionStateClosed) {
+      var audioTrack = _localStream?.getAudioTracks()?.first;
+      isTalking = audioTrack != null ? audioTrack.enabled : false;
+      isLoading = false;
+      update();
     }
   }
 

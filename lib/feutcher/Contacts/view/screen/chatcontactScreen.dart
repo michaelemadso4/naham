@@ -78,7 +78,8 @@ class Chatcontactscreen extends StatelessWidget {
                       Row(
                         children: [
                           IconButton(onPressed: () {
-                            Get.back();
+                            Get.back(result: () => Get.delete<PushToTalk>());
+
                           }, icon: Icon(Icons.keyboard_arrow_left_sharp,
                             color: Colors.white,)),
                           Image.asset(
@@ -276,8 +277,10 @@ class Chatcontactscreen extends StatelessWidget {
                       ),
                       GetBuilder(
                           init: PushToTalk( context: context),
+                          autoRemove: true,
                           builder: (controller) {
                             return MicRecordBtn(
+                              isLoading: controller.isLoading,
                               isPersing: controller.isTalking,
                               onLongPressEnd: (details) {
                                 //_stopTalking();
