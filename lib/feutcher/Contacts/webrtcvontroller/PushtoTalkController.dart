@@ -237,8 +237,8 @@ class PushToTalk extends GetxController {
       print("No audio tracks available.");
       return;
     }
+    audioTracks.first.enabled = true;
     if(_peerConnection.signalingState == webrtc.RTCSignalingState.RTCSignalingStateStable) {
-      audioTracks.first.enabled = true;
       isTalking = true;
       isLoading = false;
     }
@@ -247,12 +247,12 @@ class PushToTalk extends GetxController {
       _peerConnection.addTrack(track, _localStream!);
     });
 
-    var constraints = <String, dynamic>{'iceRestart': true};
-    webrtc.RTCSessionDescription offer = await _peerConnection.createOffer(constraints);
+
+    webrtc.RTCSessionDescription offer = await _peerConnection.createOffer();
     await _peerConnection.setLocalDescription(offer);
 
     update();
-    _sendToServer({'type': 'offer', 'sdp': offer.sdp, 'iceRestart': true});
+    _sendToServer({'type': 'offer', 'sdp': offer.sdp});
 
     // Set isTalking = true only on the device that sends the offer
     // isTalking = true;
