@@ -5,6 +5,8 @@ import 'package:naham/helper/nativeChannel/naitiveChannel.dart';
 import 'package:naham/helper/sherdprefrence/shardprefKeyConst.dart';
 import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 
 class SendNotificationController extends GetxController{
   late WebSocketChannel _channel;
@@ -13,8 +15,13 @@ class SendNotificationController extends GetxController{
     // TODO: implement onInit
     super.onInit();
     _connectToChatSocketServer();
+    requestNotificationPermission();
   }
-
+  Future<void> requestNotificationPermission() async {
+    if (await Permission.notification.isDenied) {
+      await Permission.notification.request();
+    }
+  }
   @override
   void dispose() {
     // TODO: implement dispose
