@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:naham/feutcher/Contacts/controller/ContactController.dart';
+import 'package:naham/feutcher/Contacts/controller/SendNotificationController/SendNotificatinController.dart';
 import 'package:naham/feutcher/Contacts/model/contactmodel.dart';
 import 'package:naham/feutcher/Contacts/view/screen/chatcontactScreen.dart';
 import 'package:naham/feutcher/Contacts/view/widgets/contactContainer.dart';
@@ -8,6 +9,8 @@ import 'package:naham/helper/colors/colorsconstant.dart';
 import 'package:naham/helper/scalesize.dart';
 import 'package:naham/helper/sherdprefrence/shardprefKeyConst.dart';
 import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
+
+import 'CallScreen/CallScreen.dart';
 
 class ContactsScreen extends StatelessWidget {
   const ContactsScreen({super.key});
@@ -84,13 +87,53 @@ class ContactsScreen extends StatelessWidget {
                        return ListView.builder(
                            itemCount: contactModel.data!.length,
                            itemBuilder: (context, index) {
-                             return ContactsContainer(
-                               lschat: '',
-                               usename: contactModel.data![index].name,
-                               onTap: () {
-                                 CacheHelper.saveData(key: userprofielkey, value: contactModel.data![index].id);
-                                 Get.to(() => Chatcontactscreen());
-                               },
+                             return Row(
+                               children: [
+                                 Expanded(
+                                   flex: 2,
+                                   child: ContactsContainer(
+                                     lschat: '',
+                                     usename: contactModel.data![index].name,
+                                     onTap: () {
+                                       CacheHelper.saveData(key: userprofielkey, value: contactModel.data![index].id);
+                                       Get.to(() => Chatcontactscreen());
+                                     },
+                                   ),
+                                 ),
+
+                                 Expanded(
+                                   flex: 0,
+                                   child: GetBuilder(
+                                     init:SendNotificationController(),
+
+                                       builder: (controller) {
+                                       return CircleAvatar(
+                                         backgroundColor: kPrimaryColor,
+                                         child: IconButton(onPressed: ()async{
+                                           await CacheHelper.saveData(key: userprofielkey, value: contactModel.data![index].id);
+
+                                           controller.SendNotification();
+                                           // Get.to(() => CallScreen());
+                                         },
+
+                                         icon: Icon(Icons.call,color: Colors.white,),),
+                                       );
+                                     }
+                                   ),
+                                 ),
+                                 Expanded(
+                                   flex: 1,
+                                   child: CircleAvatar(
+                                     backgroundColor: kPrimaryColor,
+                                     child: IconButton(onPressed: (){
+                                       CacheHelper.saveData(key: userprofielkey, value: contactModel.data![index].id);
+                                       Get.to(() => CallScreen());
+                                     },
+
+                                     icon: Icon(Icons.messenger,color: Colors.white,),),
+                                   ),
+                                 )
+                               ],
                              );
                            });
                      }else{

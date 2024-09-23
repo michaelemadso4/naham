@@ -30,7 +30,11 @@ android {
     namespace = "com.tadafuq.naham"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
-
+    sourceSets {
+        main {
+            java.srcDirs += 'src/main/kotlin' // If using Kotlin
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8

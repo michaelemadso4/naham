@@ -7,10 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:naham/feutcher/Contacts/controller/chatMainScreen/chatCallController.dart';
 import 'package:naham/feutcher/Contacts/controller/chatMainScreen/chatMainControlle.dart';
 import 'package:naham/feutcher/Contacts/controller/firebaseChatController.dart';
 import 'package:naham/feutcher/Contacts/controller/pusherChatController.dart';
 import 'package:naham/feutcher/Contacts/controller/userinfoController.dart';
+import 'package:naham/feutcher/Contacts/view/screen/CallScreen/CallScreen.dart';
 import 'package:naham/feutcher/Contacts/view/screen/operator/chatoperator.dart';
 import 'package:naham/feutcher/Contacts/view/widgets/containerChat/ContainerChatImage.dart';
 import 'package:naham/feutcher/Contacts/view/widgets/containerChat/ContainerLocationChat.dart';
@@ -149,7 +151,11 @@ class ChatScreen extends StatelessWidget {
                             Row(
                               children: [
                                 IconButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Get.to(()=> CallScreen(),
+                                      );
+                                      Get.delete<ChatMainController>();
+                                    },
                                     icon: Icon(
                                       Icons.call_outlined,
                                       color: Colors.black,

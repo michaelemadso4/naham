@@ -6,6 +6,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart' as webrtc;
 import 'package:get/get.dart';
 import 'package:naham/feutcher/Contacts/controller/userinfoController.dart';
 import 'package:naham/feutcher/Contacts/model/userprofielmodel.dart';
+import 'package:naham/feutcher/Contacts/view/screen/CallScreen/CallScreen.dart';
 import 'package:naham/feutcher/Contacts/view/screen/chatScreen.dart';
 import 'package:naham/feutcher/Contacts/view/widgets/btn/micrecordbtn.dart';
 import 'package:naham/feutcher/Contacts/webrtcvontroller/PushtoTalkController.dart';
@@ -216,7 +217,11 @@ class Chatcontactscreen extends StatelessWidget {
                                               CircleAvatar(
                                                   backgroundColor: kSceonderyColor,
                                                   child: IconButton(
-                                                      onPressed: () {},
+                                                      onPressed: () {
+                                                        Get.to(()=> CallScreen(),
+                                                        );
+                                                        Get.delete<PushToTalk>();
+                                                      },
                                                       icon: Icon(Icons.call,
                                                         color: Colors.white,))),
                                               SizedBox(width: 10,),
@@ -257,6 +262,8 @@ class Chatcontactscreen extends StatelessWidget {
                                                                 .rightToLeftWithFade,
                                                             duration: Duration(
                                                                 milliseconds: 300));
+                                                        Get.delete<PushToTalk>();
+
                                                       },
                                                       icon: Icon(
                                                           Icons.chat_outlined))),

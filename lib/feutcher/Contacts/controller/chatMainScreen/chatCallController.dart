@@ -1,16 +1,17 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart' as webrtc;
-import 'package:get/get.dart';
-import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
-import 'package:naham/helper/sherdprefrence/shardprefKeyConst.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
+import 'package:naham/helper/sherdprefrence/shardprefKeyConst.dart';
+import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/status.dart' as status;
 
-class PushToTalk extends GetxController {
-  BuildContext context;
-  PushToTalk({required this.context});
 
+
+class ChatCallController extends GetxController {
   late webrtc.RTCPeerConnection _peerConnection;
   webrtc.MediaStream? _localStream;
   webrtc.MediaStream? _remoteStream;
@@ -25,11 +26,11 @@ class PushToTalk extends GetxController {
     _connectToSignalingServer();
   }
 
- @override
+  @override
   void onClose() {
     // TODO: implement onClose
-   _cleanupResources();
-   print("close()++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    _cleanupResources();
+    print("close()++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     super.onClose();
   }
 
@@ -72,10 +73,13 @@ class PushToTalk extends GetxController {
         'sampleSize': 16,
         'volume': 1.0,
       },
-      'video': false,
+      'video': {
+        'facingMode': 'user',
+      },
     };
     try {
       return await webrtc.navigator.mediaDevices.getUserMedia(mediaConstraints);
+
     } catch (e) {
       print("Error obtaining user media: $e");
       throw e;
@@ -110,8 +114,8 @@ class PushToTalk extends GetxController {
   }
 
   void _sendToServer(Map<String, dynamic> message) {
-      userid = CacheHelper.getData(key: userprofielkey);
-      message["to_user_id"] = "$userid";
+    userid = CacheHelper.getData(key: userprofielkey);
+    message["to_user_id"] = "$userid";
     _channel.sink.add(jsonEncode(message));
   }
 
@@ -345,6 +349,7 @@ class PushToTalk extends GetxController {
     }
   }
 
+
   void _showToast(String message, Color bgColor) {
     Fluttertoast.showToast(
       msg: message,
@@ -355,4 +360,21 @@ class PushToTalk extends GetxController {
       fontSize: 16.0,
     );
   }
+
 }
+
+/*
+ Future<void> _startLocalStream() async {
+    final Map<String, dynamic> mediaConstraints = {
+      'audio': true,
+      'video': {
+        'facingMode': 'user',
+      },
+    };
+
+    _localStream = await webrtc.navigator.mediaDevices.getUserMedia(mediaConstraints);
+    localRenderer.srcObject = _localStream;
+    update();
+    await _createPeerConnection();
+  }
+ */
