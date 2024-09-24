@@ -39,18 +39,18 @@ class SendNotificationController extends GetxController{
     var usertoken = CacheHelper.getData(key: access_tokenkey);
     _channel = WebSocketChannel.connect(Uri.parse('wss://naham.tadafuq.ae?user_id=${myuserid}&token=$usertoken'));
     print("close reason ${_channel.closeReason}"  );
-    _channel.stream.listen((message) {
+    _channel.stream.listen((message) async {
       final data = jsonDecode(message);
-
+      String result = await NativeChannel().invokeNativeMethod(arg1: "title",arg2: "body");
+      print(result);
       update();
     });
   }
 
   SendNotification()async{
-    String result = await NativeChannel().invokeNativeMethod();
-    print(result);
-    // int reciver_id = CacheHelper.getData(key: userprofielkey);
-    // _channel.sink.add({"message":"Hello World","to_user_id":reciver_id});
+
+    int reciver_id = CacheHelper.getData(key: userprofielkey);
+    _channel.sink.add({"message":"Hello World","to_user_id":reciver_id});
   }
 
 }

@@ -14,7 +14,11 @@ class MainActivity: FlutterActivity() {
         flutterEngine?.dartExecutor?.binaryMessenger?.let {
             MethodChannel(it, CHANNEL).setMethodCallHandler { call, result ->
                 if (call.method == "startForegroundService") {
-                    startForegroundService()
+                    // Receive arguments
+                    val arg1: String? = call.argument("arg1")
+                    val arg2: String? = call.argument("arg2")
+
+                    startForegroundService(arg1, arg2)
                     result.success("Foreground Service Started")
                 } else {
                     result.notImplemented()
@@ -23,8 +27,11 @@ class MainActivity: FlutterActivity() {
         }
     }
 
-    private fun startForegroundService() {
-        val intent = Intent(this, MyForegroundService::class.java)
+    private fun startForegroundService(arg1: String?, arg2: String?) {
+        val intent = Intent(this, MyForegroundService::class.java).apply {
+            putExtra("arg1", arg1)
+            putExtra("arg2", arg2)
+        }
         startService(intent)
     }
 
