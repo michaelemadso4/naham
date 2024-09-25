@@ -104,7 +104,7 @@ class ContactsScreen extends StatelessWidget {
                                  Expanded(
                                    flex: 0,
                                    child: GetBuilder(
-                                     init:SendNotificationController(),
+                                     init:SendNotificationController(context),
 
                                        builder: (controller) {
                                        return CircleAvatar(
@@ -113,7 +113,7 @@ class ContactsScreen extends StatelessWidget {
                                            await CacheHelper.saveData(key: userprofielkey, value: contactModel.data![index].id);
 
                                            controller.SendNotification();
-                                           // Get.to(() => CallScreen());
+                                           Get.to(() => CallScreen(),arguments: {});
                                          },
 
                                          icon: Icon(Icons.call,color: Colors.white,),),

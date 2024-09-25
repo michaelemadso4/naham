@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:naham/feutcher/Auth/Login/model/usermodel.dart';
@@ -47,10 +48,24 @@ class LoginController extends GetxController {
       ));
     }
   }
+  String? fcmToken;
+
+  Future<void> getFCMToken() async {
+    try {
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+      String? token = await messaging.getToken();
+      fcmToken = token;
+      update();
+      print("FCM Token: $fcmToken");
+    } catch (e) {
+      print("Error getting FCM token: $e");
+    }
+  }
 
   SignInWebService() async {
     IsLogin = true;
     update();
+    await getFCMToken();
     Dio dio = Dio();
     var headers = {
       'Accept': 'application/json',
@@ -59,7 +74,7 @@ class LoginController extends GetxController {
     var data = {
       'email': '${EmailTEC.text}',
       'password': '${PasswordTEC.text}',
-      'FcmToken': 'token'
+      'FcmToken': '${fcmToken}'
     };
     try {
       var response = await dio.post('${apiurl}${apilogin}',

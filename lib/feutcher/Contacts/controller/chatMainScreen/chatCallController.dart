@@ -38,11 +38,10 @@ class ChatCallController extends GetxController {
   void dispose() {
     super.dispose();
     _cleanupResources();
-    print("dispose()++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-
   }
 
   startTalking(){
+
     _startTalking();
   }
   stopTalking(){
@@ -144,10 +143,13 @@ class ChatCallController extends GetxController {
 
   // ============================= WebSocket Handlers =============================
 
-  void _handleSocketMessage(dynamic message) {
+  void _handleSocketMessage(dynamic message)async {
     final data = jsonDecode(message as String); // Cast 'message' to String before decoding
     print("Data from socket: $message");
 
+    if(data['type']=="accept_calling"){
+      print("++++++++${data['type']}");
+      await startTalking();
     switch (data['type']) {
       case 'offer':
         _handleOffer(data);
@@ -164,6 +166,19 @@ class ChatCallController extends GetxController {
       case 'terminate':
         _handleTerminate();
         break;
+
+
+    }}else if(data['type']=="decline_calling"){
+      Fluttertoast.showToast(
+        msg: "Decline Calling",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      stopTalking();
+      Get.back();
     }
   }
 
@@ -232,6 +247,7 @@ class ChatCallController extends GetxController {
   bool isLoading = false;
   void _startTalking() async {
     isLoading = true;
+    print("StartCalling");
     if (_localStream == null || _localStream!.getTracks().isEmpty) {
       print("Local stream is null");
       return;
@@ -363,18 +379,3 @@ class ChatCallController extends GetxController {
 
 }
 
-/*
- Future<void> _startLocalStream() async {
-    final Map<String, dynamic> mediaConstraints = {
-      'audio': true,
-      'video': {
-        'facingMode': 'user',
-      },
-    };
-
-    _localStream = await webrtc.navigator.mediaDevices.getUserMedia(mediaConstraints);
-    localRenderer.srcObject = _localStream;
-    update();
-    await _createPeerConnection();
-  }
- */

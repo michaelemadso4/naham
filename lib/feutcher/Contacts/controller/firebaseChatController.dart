@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -359,21 +358,6 @@ class FirbaseChatController extends GetxController{
         final currentUser = FirebaseAuth.instance.currentUser;
         final conversationId = getConversationId();
 
-        await FirebaseFirestore.instance.collection('conversations')
-            .doc(conversationId)
-            .collection('messages')
-            .add({
-          "id": null,
-          "sender_id": currentUser!.uid,
-          "receiver_id": id,
-          "message": null,
-          "path": data['data']['path'],
-          "type": data['data']['type'],
-          "location_link": null,
-          'createdAt': Timestamp.now(),
-
-
-        });
 
 
         update();
@@ -440,21 +424,6 @@ class FirbaseChatController extends GetxController{
         final currentUser = FirebaseAuth.instance.currentUser;
         final conversationId = getConversationId();
 
-        await FirebaseFirestore.instance.collection('conversations')
-            .doc(conversationId)
-            .collection('messages')
-            .add({
-          "id": null,
-          "sender_id": currentUser!.uid,
-          "receiver_id": id,
-          "message": null,
-          "path": data['data']['path'],
-          "type": data['data']['type'],
-          "location_link": null,
-          'createdAt': Timestamp.now(),
-
-
-        });
         update();
 
       }
@@ -598,21 +567,6 @@ class FirbaseChatController extends GetxController{
         final currentUser = FirebaseAuth.instance.currentUser;
         final conversationId = getConversationId();
 
-        await FirebaseFirestore.instance.collection('conversations')
-            .doc(conversationId)
-            .collection('messages')
-            .add({
-          "id": null,
-          "sender_id": currentUser!.uid,
-          "receiver_id": id,
-          "message": null,
-          "path": data['data']['path'],
-          "type": data['data']['type'],
-          "location_link": null,
-          'createdAt': Timestamp.now(),
-
-
-        });
 
         update();
 
@@ -697,19 +651,7 @@ class FirbaseChatController extends GetxController{
         final currentUser = FirebaseAuth.instance.currentUser;
         final conversationId = getConversationId();
 
-        await FirebaseFirestore.instance.collection('conversations')
-            .doc(conversationId)
-            .collection('messages')
-            .add({
-          "id": null,
-          "sender_id": currentUser!.uid,
-          "receiver_id": id,
-          "message": enteredText,
-          "path": null,
-          "type": "message",
-          "location_link": null,
-          'createdAt': Timestamp.now(),
-        });
+
         messageController.clear();
 
          // */

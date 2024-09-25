@@ -30,10 +30,8 @@ class CallScreen extends StatelessWidget {
               colors: [
                 kTheryColor,
                 kPrimaryColor,
-
                 kSceonderyColor,
                 kTheryColor,
-
               ],
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
@@ -107,7 +105,6 @@ class CallScreen extends StatelessWidget {
                                         children: [
                                           Icon(Icons.cloud,color: Colors.red,size: 60,),
                                           Icon(Icons.offline_bolt,color: Colors.white,size: 20,),
-
                                         ],
                                       ),
                                     ),
