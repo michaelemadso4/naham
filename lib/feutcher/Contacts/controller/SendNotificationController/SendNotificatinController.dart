@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:naham/feutcher/Auth/Login/view/widgets/btnLogin.dart';
+import 'package:naham/feutcher/Contacts/controller/chatMainScreen/chatCallController.dart';
 import 'package:naham/feutcher/Contacts/controller/userinfoController.dart';
 import 'package:naham/feutcher/Contacts/model/userprofielmodel.dart';
 import 'package:naham/feutcher/Contacts/view/screen/CallScreen/CallScreen.dart';
@@ -13,6 +14,7 @@ import 'package:naham/feutcher/Contacts/view/widgets/Text/Body1_txt.dart';
 import 'package:naham/feutcher/Contacts/view/widgets/Text/BodyDialog.dart';
 import 'package:naham/feutcher/Contacts/view/widgets/Text/Titletxt.dart';
 import 'package:naham/feutcher/Contacts/view/widgets/Text/titleDialog.dart';
+import 'package:naham/helper/ToastMessag/toastmessag.dart';
 import 'package:naham/helper/WebService/webServiceConstant.dart';
 import 'package:naham/helper/colors/colorsconstant.dart';
 import 'package:naham/helper/nativeChannel/naitiveChannel.dart';
@@ -64,8 +66,8 @@ class SendNotificationController extends GetxController{
         ShowCallingNotification("title","body",data);
       }
 
-      String result = await NativeChannel().invokeNativeMethod(arg1: "title",arg2: "body");
-      print(result);
+      //String result = await NativeChannel().invokeNativeMethod(arg1: "title",arg2: "body");
+      //print(result);
       update();
     },
     onDone: _handleWebSocketDisconnection,
@@ -130,6 +132,7 @@ class SendNotificationController extends GetxController{
       print(e);
     }
   }
+  ChatCallController chatCallController = ChatCallController();
 
   ShowCallingNotification(title,body,payload) async {
    await GetUserInfo(payload['payload']['sender_id']);
@@ -138,6 +141,7 @@ class SendNotificationController extends GetxController{
           child: Container(
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(40)),
           height: 240,
+      margin: EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -159,20 +163,28 @@ class SendNotificationController extends GetxController{
                     child: CircleAvatar(
                       radius: 45,
                       backgroundColor: Colors.green,
-                    child:IconButton(icon: Icon(Icons.call,color: Colors.white,size: 30),onPressed: (){
-                      AcceptCall(payload['payload']['sender_id']);
+                    child:IconButton(icon: Icon(Icons.call,color: Colors.white,size: 30),onPressed: () async {
+                      await AcceptCall(payload['payload']['sender_id']);
+                      /////////////////////////////////////////////////////////////
+                    await  Future.delayed(Duration(seconds:3));
+                      DurationCall();
+
                     },),),
                   )
                 ],
               )
             ],
           ),
-      margin: EdgeInsets.symmetric(horizontal: 20),
 
       ));
     });
   }
 
+
+  DurationCall(){
+
+    showToast(text: "STaaaaaaaaaaaaaaaaaaaaaaart Takinkg", state: ToastState.SUCCESS);
+  }
   SendNotification()async{
     var myuserid = CacheHelper.getData(key: useridKey);
     int reciver_id = CacheHelper.getData(key: userprofielkey);
@@ -190,15 +202,15 @@ class SendNotificationController extends GetxController{
     Get.back();
   }
 
+
   Future<void> AcceptCall(reciver_id) async {
     var myuserid = CacheHelper.getData(key: useridKey);
     await CacheHelper.saveData(key: userprofielkey, value: reciver_id);
     var map ={"type":"accept_calling","payload":{"sender_id":myuserid}
       ,"to_user_id":reciver_id};
-    _channel.sink.add(jsonEncode(map));
-    var maptoMe ={"type":"accept_calling","payload":{"sender_id":myuserid}
-      ,"to_user_id":myuserid};
-    _channel.sink.add(jsonEncode(maptoMe));
+     _channel.sink.add(jsonEncode(map));
+
+
     Get.back();
     Get.to(() => CallScreen(),arguments: {});
 
