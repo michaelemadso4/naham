@@ -84,13 +84,29 @@ class PushToTalk extends GetxController {
 
   Future<webrtc.RTCPeerConnection> _createPeerConnection() async {
     final configuration = {
-      'iceServers': [
-        {'urls': 'stun:stun1.l.google.com:19302'},
-        {'urls': 'stun:stun2.l.google.com:19302'},
+      "iceServers": [
         {
-          'urls': 'turns:turn.fav.on24.com:443',
-          'username': 'on24user',
-          'credential': 'nev2Eni@'
+          "urls": "stun:stun.relay.metered.ca:80",
+        },
+        {
+          "urls": "turn:global.relay.metered.ca:80",
+          "username": "fe2aaa0c26ae5dcc6385d244",
+          "credential": "/Bk3oEbhGjdv7jkO",
+        },
+        {
+          "urls": "turn:global.relay.metered.ca:80?transport=tcp",
+          "username": "fe2aaa0c26ae5dcc6385d244",
+          "credential": "/Bk3oEbhGjdv7jkO",
+        },
+        {
+          "urls": "turn:global.relay.metered.ca:443",
+          "username": "fe2aaa0c26ae5dcc6385d244",
+          "credential": "/Bk3oEbhGjdv7jkO",
+        },
+        {
+          "urls": "turns:global.relay.metered.ca:443?transport=tcp",
+          "username": "fe2aaa0c26ae5dcc6385d244",
+          "credential": "/Bk3oEbhGjdv7jkO",
         },
       ],
     };
