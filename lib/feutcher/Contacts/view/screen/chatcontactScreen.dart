@@ -322,29 +322,22 @@ class Chatcontactscreen extends StatelessWidget {
                         builder: (controller) {
                           return MicRecordBtn(
                             isLoading: controller.isLoading,
-                            // Update with proper state from controller if needed
                             isPersing: controller.isPressing,
-                            // Update with proper state from controller if needed
-                            onLongPressEnd: (){},
-                            onLongPress: controller.isPressing?(){
-                              controller.funStopTaking();
+                            onLongPressEnd: () {},
+                            onLongPress: () {
+                              // If the button is loading, stop taking and terminate the connection.
+                              if (controller.isLoading) {
+                                controller.funStopTaking();
+                                return;
+                              }
 
-                            }:() {
-                              // Start talking/mic
-                              controller.funStartTaking();
-                              // if (controller.localStream != null) {
-                              //   var audioTracks =
-                              //       controller.localStream!.getAudioTracks();
-                              //   if (audioTracks.isNotEmpty) {
-                              //
-                              //     controller.funStartTaking();
-                              //     audioTracks.first.enabled =
-                              //         true; // Enable mic
-                              //     controller.peerConnection.addTrack(
-                              //         audioTracks.first,
-                              //         controller.localStream!);
-                              //   }
-                              // }
+                              // If the button is not loading and pressing, start taking/mic
+                              if (!controller.isPressing) {
+                                controller.funStartTaking();
+                              } else {
+                                // If already in pressing state, stop it
+                                controller.funStopTaking();
+                              }
                             },
                           );
                         },
