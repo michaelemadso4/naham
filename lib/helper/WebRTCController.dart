@@ -256,6 +256,7 @@ class WebRTCController extends GetxController {
     await peerConnection.setRemoteDescription(description);
     isLoading = false;
     isPressing = true;
+    update();
   }
 
   void _handleCandidate(Map<String, dynamic> data) async {
