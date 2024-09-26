@@ -326,29 +326,24 @@ class Chatcontactscreen extends StatelessWidget {
                             // Update with proper state from controller if needed
                             onLongPressEnd: (){},
                             onLongPress: controller.isPressing?(){
-                              if (controller.localStream != null) {
-                                var audioTracks =
-                                controller.localStream!.getAudioTracks();
-                                if (audioTracks.isNotEmpty) {
-                                  audioTracks.first.enabled = false; // Disable mic
-                                controller.funStopTaking();
-                                }
-                              }
+                              controller.funStopTaking();
+
                             }:() {
                               // Start talking/mic
-                              if (controller.localStream != null) {
-                                var audioTracks =
-                                    controller.localStream!.getAudioTracks();
-                                if (audioTracks.isNotEmpty) {
-
-                                  controller.funStartTaking();
-                                  audioTracks.first.enabled =
-                                      true; // Enable mic
-                                  controller.peerConnection.addTrack(
-                                      audioTracks.first,
-                                      controller.localStream!);
-                                }
-                              }
+                              controller.funStartTaking();
+                              // if (controller.localStream != null) {
+                              //   var audioTracks =
+                              //       controller.localStream!.getAudioTracks();
+                              //   if (audioTracks.isNotEmpty) {
+                              //
+                              //     controller.funStartTaking();
+                              //     audioTracks.first.enabled =
+                              //         true; // Enable mic
+                              //     controller.peerConnection.addTrack(
+                              //         audioTracks.first,
+                              //         controller.localStream!);
+                              //   }
+                              // }
                             },
                           );
                         },

@@ -19,8 +19,6 @@ void main()async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  Get.put(WebRTCController());
-
   runApp(const MyApp());
 }
 

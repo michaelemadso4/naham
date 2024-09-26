@@ -37,7 +37,12 @@ class WebRTCController extends GetxController {
   bool isPressing = false;
 
   funStartTaking() async {
+    isLoading = true;
+    update();
 
+    print("before init");
+    await _initializeWebRTC();
+    print("after init");
 
     if (localStream == null || localStream!.getTracks().isEmpty) {
       print("Local stream is null");
@@ -52,6 +57,7 @@ class WebRTCController extends GetxController {
     if(peerConnection.signalingState == webrtc.RTCSignalingState.RTCSignalingStateStable) {
       isLoading = false;
       isPressing = true;
+      update();
     }
 
     localStream?.getTracks().forEach((track) {
@@ -65,12 +71,33 @@ class WebRTCController extends GetxController {
     update();
     _sendToServer({'type': 'offer', 'sdp': offer.sdp});
     update();
+
+    // if (localStream != null) {
+    //   var audioTracks =
+    //       localStream!.getAudioTracks();
+    //   if (audioTracks.isNotEmpty) {
+    //     audioTracks.first.enabled =
+    //         true; // Enable mic
+    //     peerConnection.addTrack(
+    //         audioTracks.first,
+    //         localStream!);
+    //   }
+    // }
   }
 
   funStopTaking() {
     isLoading = false;
     // Update with proper state from controller if needed
     isPressing = false;
+    if (localStream != null) {
+      var audioTracks =
+      localStream!.getAudioTracks();
+      if (audioTracks.isNotEmpty) {
+        audioTracks.first.enabled = false; // Disable mic
+
+      }
+    }
+
     update();
   }
 
@@ -192,6 +219,7 @@ class WebRTCController extends GetxController {
   void _handleSocketMessage(dynamic message) {
     final data = jsonDecode(message as String); // Cast 'message' to String before decoding
     print("Data from socket: $message");
+    CacheHelper.saveData(key: userprofielkey, value: data["sender_id"]);
 
     print(data['type']);
 
@@ -272,7 +300,11 @@ class WebRTCController extends GetxController {
 
   void _sendToServer(Map<String, dynamic> message) {
     userid = CacheHelper.getData(key: userprofielkey);
+    var myuserid = CacheHelper.getData(key: useridKey);
     message["to_user_id"] = "$userid";
+    message["sender_id"]=myuserid;
+    print("sending to $userid");
+    print("sending from $myuserid");
     _channel.sink.add(jsonEncode(message));
   }
 
@@ -304,12 +336,14 @@ class WebRTCController extends GetxController {
       _showToast("Connection established!", Colors.green);
 
       isLoading = false;
+      isPressing = true;
       update();
     } else if (state ==
         webrtc.RTCIceConnectionState.RTCIceConnectionStateCompleted) {
       _showToast("Connection completed!", Colors.blue);
 
       isLoading = false;
+      isPressing = true;
       update();
     } else if (state ==
         webrtc.RTCIceConnectionState.RTCIceConnectionStateClosed) {
