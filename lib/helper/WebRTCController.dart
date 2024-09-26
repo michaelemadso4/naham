@@ -9,12 +9,14 @@ import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WebRTCController extends GetxController {
-  late webrtc.RTCPeerConnection peerConnection;
+  late webrtc.RTCPeerConnection? peerConnection;
   webrtc.MediaStream? localStream;
   webrtc.MediaStream? remoteStream;
 
   late WebSocketChannel _channel;
   int userid = 0;
+
+
 
   @override
   void onInit() {
@@ -37,52 +39,38 @@ class WebRTCController extends GetxController {
   bool isPressing = false;
 
   funStartTaking() async {
+    if (peerConnection != null) {
+      await peerConnection?.close(); // Close any existing connection before starting a new one
+    }
+
     isLoading = true;
     update();
 
-    print("before init");
     await _initializeWebRTC();
-    print("after init");
 
     if (localStream == null || localStream!.getTracks().isEmpty) {
       print("Local stream is null");
       return;
     }
+
     final audioTracks = localStream!.getAudioTracks();
     if (audioTracks.isEmpty) {
       print("No audio tracks available.");
       return;
     }
+
     audioTracks.first.enabled = true;
-    if(peerConnection.signalingState == webrtc.RTCSignalingState.RTCSignalingStateStable) {
-      //isLoading = false;
-      //isPressing = true;
-      update();
-    }
 
     localStream?.getTracks().forEach((track) {
-      peerConnection.addTrack(track, localStream!);
+      peerConnection?.addTrack(track, localStream!);
     });
 
+    webrtc.RTCSessionDescription? offer = await peerConnection?.createOffer();
+    await peerConnection?.setLocalDescription(offer!);
 
-    webrtc.RTCSessionDescription offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
+    _sendToServer({'type': 'offer', 'sdp': offer?.sdp});
 
     update();
-    _sendToServer({'type': 'offer', 'sdp': offer.sdp});
-    update();
-
-    // if (localStream != null) {
-    //   var audioTracks =
-    //       localStream!.getAudioTracks();
-    //   if (audioTracks.isNotEmpty) {
-    //     audioTracks.first.enabled =
-    //         true; // Enable mic
-    //     peerConnection.addTrack(
-    //         audioTracks.first,
-    //         localStream!);
-    //   }
-    // }
   }
 
   funStopTaking() {
@@ -97,6 +85,7 @@ class WebRTCController extends GetxController {
 
       }
     }
+    _handleStop();
     _handleTerminate();
 
     update();
@@ -106,11 +95,20 @@ class WebRTCController extends GetxController {
     localStream = await _getUserMedia();
     peerConnection = await _createPeerConnection();
 
-    peerConnection.onIceCandidate = _handleIceCandidate;
-    peerConnection.onAddStream =
+    peerConnection?.onIceCandidate = _handleIceCandidate;
+    peerConnection?.onAddStream =
         _handleRemoteStream;
-    peerConnection.onIceConnectionState = _handleIceConnectionState;
+    peerConnection?.onIceConnectionState = _handleIceConnectionState;
+
+
+    isPressing = false;
+    update();
   }
+
+  void _handleIceCandidate(webrtc.RTCIceCandidate candidate) {
+    _sendToServer({'type': 'candidate', 'candidate': candidate.toMap()});
+  }
+
 
   Future<webrtc.MediaStream> _getUserMedia() async {
     final mediaConstraints = {
@@ -200,8 +198,11 @@ class WebRTCController extends GetxController {
       textColor: Colors.white,
       fontSize: 16.0,
     );
+
     _sendToServer({'type': 'terminate'});
-    Future.delayed(Duration(seconds: 1), _restartConnection);
+    peerConnection?.close();
+    _initializeWebRTC();
+    Future.delayed(Duration(seconds: 1), _connectToSignalingServer); // Restart connection
   }
 
   void _handleWebSocketError(error) {
@@ -211,7 +212,7 @@ class WebRTCController extends GetxController {
   }
 
   Future<void> _restartConnection() async {
-    await peerConnection.close();
+    await peerConnection?.close();
     await _initializeWebRTC();
     _connectToSignalingServer();
   }
@@ -244,16 +245,22 @@ class WebRTCController extends GetxController {
   }
 
   void _handleOffer(Map<String, dynamic> data) async {
+    if (peerConnection == null) {
+      await _initializeWebRTC(); // Reinitialize the connection if it's not already available
+    }
+
     final description = webrtc.RTCSessionDescription(data['sdp'], 'offer');
-    await peerConnection.setRemoteDescription(description);
-    final answer = await peerConnection.createAnswer();
-    await peerConnection.setLocalDescription(answer);
-    _sendToServer({'type': 'answer', 'sdp': answer.sdp});
+    await peerConnection?.setRemoteDescription(description);
+
+    final answer = await peerConnection?.createAnswer();
+    await peerConnection?.setLocalDescription(answer!);
+
+    _sendToServer({'type': 'answer', 'sdp': answer?.sdp});
   }
 
   void _handleAnswer(Map<String, dynamic> data) async {
     final description = webrtc.RTCSessionDescription(data['sdp'], 'answer');
-    await peerConnection.setRemoteDescription(description);
+    await peerConnection?.setRemoteDescription(description);
     isLoading = false;
     isPressing = true;
     update();
@@ -265,7 +272,12 @@ class WebRTCController extends GetxController {
       data['candidate']['sdpMid'],
       data['candidate']['sdpMLineIndex'],
     );
-    await peerConnection.addCandidate(candidate);
+
+    if (peerConnection != null) {
+      await peerConnection?.addCandidate(candidate);
+    } else {
+      print("Peer connection not ready for candidate.");
+    }
   }
 
   void _handleStop() {
@@ -279,9 +291,12 @@ class WebRTCController extends GetxController {
 
   void _handleTerminate() async {
     print("Terminate message received, closing connection...");
-    await peerConnection.close();
+    await peerConnection?.close();
     localStream?.dispose();
     remoteStream?.dispose();
+    peerConnection = null; // Reset the peer connection
+    localStream = null;
+    remoteStream = null;
 
     Fluttertoast.showToast(
       msg: "Connection terminated by remote peer.",
@@ -291,14 +306,7 @@ class WebRTCController extends GetxController {
       textColor: Colors.white,
       fontSize: 16.0,
     );
-    //stopTalking();
-
-    // isTalking = false;
     update();
-  }
-
-  void _handleIceCandidate(webrtc.RTCIceCandidate candidate) {
-    _sendToServer({'type': 'candidate', 'candidate': candidate.toMap()});
   }
 
 
@@ -373,7 +381,7 @@ class WebRTCController extends GetxController {
   void onClose() {
     localStream?.dispose();
     remoteStream?.dispose();
-    peerConnection.close();
+    peerConnection?.close();
     super.onClose();
   }
 }
