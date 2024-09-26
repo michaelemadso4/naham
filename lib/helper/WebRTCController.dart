@@ -55,8 +55,8 @@ class WebRTCController extends GetxController {
     }
     audioTracks.first.enabled = true;
     if(peerConnection.signalingState == webrtc.RTCSignalingState.RTCSignalingStateStable) {
-      isLoading = false;
-      isPressing = true;
+      //isLoading = false;
+      //isPressing = true;
       update();
     }
 
@@ -97,6 +97,7 @@ class WebRTCController extends GetxController {
 
       }
     }
+    _handleTerminate();
 
     update();
   }
@@ -253,6 +254,8 @@ class WebRTCController extends GetxController {
   void _handleAnswer(Map<String, dynamic> data) async {
     final description = webrtc.RTCSessionDescription(data['sdp'], 'answer');
     await peerConnection.setRemoteDescription(description);
+    isLoading = false;
+    isPressing = true;
   }
 
   void _handleCandidate(Map<String, dynamic> data) async {
@@ -335,21 +338,21 @@ class WebRTCController extends GetxController {
     if (state == webrtc.RTCIceConnectionState.RTCIceConnectionStateConnected) {
       _showToast("Connection established!", Colors.green);
 
-      isLoading = false;
-      isPressing = true;
+      //isLoading = false;
+      //isPressing = true;
       update();
     } else if (state ==
         webrtc.RTCIceConnectionState.RTCIceConnectionStateCompleted) {
       _showToast("Connection completed!", Colors.blue);
 
-      isLoading = false;
-      isPressing = true;
+      //isLoading = false;
+      //isPressing = true;
       update();
     } else if (state ==
         webrtc.RTCIceConnectionState.RTCIceConnectionStateClosed) {
       var audioTrack = localStream?.getAudioTracks()?.first;
       isPressing = audioTrack != null ? audioTrack.enabled : false;
-      isLoading = false;
+      //isLoading = false;
       update();
     }
   }
