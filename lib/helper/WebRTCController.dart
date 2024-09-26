@@ -1,0 +1,341 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart' as webrtc;
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
+import 'package:naham/helper/sherdprefrence/shardprefKeyConst.dart';
+import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+
+class WebRTCController extends GetxController {
+  late webrtc.RTCPeerConnection peerConnection;
+  webrtc.MediaStream? localStream;
+  webrtc.MediaStream? remoteStream;
+
+  late WebSocketChannel _channel;
+  int userid = 0;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _connectToSignalingServer();
+    _initializeWebRTC();
+  }
+
+  void _connectToSignalingServer() {
+    var myuserid = CacheHelper.getData(key: useridKey);
+    var usertoken = CacheHelper.getData(key: access_tokenkey);
+
+    _channel = WebSocketChannel.connect(
+      Uri.parse('wss://naham.tadafuq.ae?user_id=$myuserid&token=$usertoken'),
+    );
+    _channel.stream.listen(_handleSocketMessage, onDone: _handleWebSocketDisconnection, onError: _handleWebSocketError);
+  }
+
+  bool isLoading = false;
+  bool isPressing = false;
+
+  funStartTaking() async {
+
+
+    if (localStream == null || localStream!.getTracks().isEmpty) {
+      print("Local stream is null");
+      return;
+    }
+    final audioTracks = localStream!.getAudioTracks();
+    if (audioTracks.isEmpty) {
+      print("No audio tracks available.");
+      return;
+    }
+    audioTracks.first.enabled = true;
+    if(peerConnection.signalingState == webrtc.RTCSignalingState.RTCSignalingStateStable) {
+      isLoading = false;
+      isPressing = true;
+    }
+
+    localStream?.getTracks().forEach((track) {
+      peerConnection.addTrack(track, localStream!);
+    });
+
+
+    webrtc.RTCSessionDescription offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+
+    update();
+    _sendToServer({'type': 'offer', 'sdp': offer.sdp});
+    update();
+  }
+
+  funStopTaking() {
+    isLoading = false;
+    // Update with proper state from controller if needed
+    isPressing = false;
+    update();
+  }
+
+  Future<void> _initializeWebRTC() async {
+    localStream = await _getUserMedia();
+    peerConnection = await _createPeerConnection();
+
+    peerConnection.onIceCandidate = _handleIceCandidate;
+    peerConnection.onAddStream =
+        _handleRemoteStream;
+    peerConnection.onIceConnectionState = _handleIceConnectionState;
+  }
+
+  Future<webrtc.MediaStream> _getUserMedia() async {
+    final mediaConstraints = {
+      'audio': {
+        'autoGainControl': true,
+        'channelCount': 2,
+        'echoCancellation': true,
+        'latency': 200,
+        'noiseSuppression': true,
+        'sampleRate': 48000,
+        'sampleSize': 16,
+        'volume': 1.0,
+      },
+      'video': false,
+    };
+    try {
+      return await webrtc.navigator.mediaDevices.getUserMedia(mediaConstraints);
+    } catch (e) {
+      print("Error obtaining user media: $e");
+      throw e;
+    }
+  }
+
+  Future<webrtc.RTCPeerConnection> _createPeerConnection() async {
+    final configuration = {
+      "iceServers": [
+        {'urls': 'stun:stun1.l.google.com:19302'},
+        {'urls': 'stun:stun2.l.google.com:19302'},
+        {
+          "urls": "stun:stun.relay.metered.ca:80",
+        },
+        {
+          "urls": "turn:global.relay.metered.ca:80",
+          "username": "fe2aaa0c26ae5dcc6385d244",
+          "credential": "/Bk3oEbhGjdv7jkO",
+        },
+        {
+          "urls": "turn:global.relay.metered.ca:80?transport=tcp",
+          "username": "fe2aaa0c26ae5dcc6385d244",
+          "credential": "/Bk3oEbhGjdv7jkO",
+        },
+        {
+          "urls": "turn:global.relay.metered.ca:443",
+          "username": "fe2aaa0c26ae5dcc6385d244",
+          "credential": "/Bk3oEbhGjdv7jkO",
+        },
+        {
+          "urls": "turns:global.relay.metered.ca:443?transport=tcp",
+          "username": "fe2aaa0c26ae5dcc6385d244",
+          "credential": "/Bk3oEbhGjdv7jkO",
+        },
+        {
+          "urls": "stun:stun.relay.metered.ca:80",
+        },
+        {
+          "urls": "turn:global.relay.metered.ca:80",
+          "username": "cdf47e9ff29f88678538edce",
+          "credential": "OogVGvp+Wy/kD0Nu",
+        },
+        {
+          "urls": "turn:global.relay.metered.ca:80?transport=tcp",
+          "username": "cdf47e9ff29f88678538edce",
+          "credential": "OogVGvp+Wy/kD0Nu",
+        },
+        {
+          "urls": "turn:global.relay.metered.ca:443",
+          "username": "cdf47e9ff29f88678538edce",
+          "credential": "OogVGvp+Wy/kD0Nu",
+        },
+        {
+          "urls": "turns:global.relay.metered.ca:443?transport=tcp",
+          "username": "cdf47e9ff29f88678538edce",
+          "credential": "OogVGvp+Wy/kD0Nu",
+        },
+      ],
+    };
+    return await webrtc.createPeerConnection(configuration);
+  }
+
+
+  void _handleWebSocketDisconnection() {
+    Fluttertoast.showToast(
+      msg: "WebSocket disconnected!",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+    _sendToServer({'type': 'terminate'});
+    Future.delayed(Duration(seconds: 1), _restartConnection);
+  }
+
+  void _handleWebSocketError(error) {
+    print("WebSocket error: $error");
+    _sendToServer({'type': 'terminate'});
+    Future.delayed(Duration(seconds: 1), _restartConnection);
+  }
+
+  Future<void> _restartConnection() async {
+    await peerConnection.close();
+    await _initializeWebRTC();
+    _connectToSignalingServer();
+  }
+
+
+  void _handleSocketMessage(dynamic message) {
+    final data = jsonDecode(message as String); // Cast 'message' to String before decoding
+    print("Data from socket: $message");
+
+    print(data['type']);
+
+    switch (data['type']) {
+      case 'offer':
+        _handleOffer(data);
+        break;
+      case 'answer':
+        _handleAnswer(data);
+        break;
+      case 'candidate':
+        _handleCandidate(data);
+        break;
+      case 'stop':
+        _handleStop();
+        break;
+      case 'terminate':
+        _handleTerminate();
+        break;
+    }
+  }
+
+  void _handleOffer(Map<String, dynamic> data) async {
+    final description = webrtc.RTCSessionDescription(data['sdp'], 'offer');
+    await peerConnection.setRemoteDescription(description);
+    final answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+    _sendToServer({'type': 'answer', 'sdp': answer.sdp});
+  }
+
+  void _handleAnswer(Map<String, dynamic> data) async {
+    final description = webrtc.RTCSessionDescription(data['sdp'], 'answer');
+    await peerConnection.setRemoteDescription(description);
+  }
+
+  void _handleCandidate(Map<String, dynamic> data) async {
+    final candidate = webrtc.RTCIceCandidate(
+      data['candidate']['candidate'],
+      data['candidate']['sdpMid'],
+      data['candidate']['sdpMLineIndex'],
+    );
+    await peerConnection.addCandidate(candidate);
+  }
+
+  void _handleStop() {
+    if (isPressing) {
+      // Only disable the mic if this device was the one talking
+      localStream?.getAudioTracks().first.enabled = false;
+      isPressing = false;
+      update();
+    }
+  }
+
+  void _handleTerminate() async {
+    print("Terminate message received, closing connection...");
+    await peerConnection.close();
+    localStream?.dispose();
+    remoteStream?.dispose();
+
+    Fluttertoast.showToast(
+      msg: "Connection terminated by remote peer.",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+    //stopTalking();
+
+    // isTalking = false;
+    update();
+  }
+
+  void _handleIceCandidate(webrtc.RTCIceCandidate candidate) {
+    _sendToServer({'type': 'candidate', 'candidate': candidate.toMap()});
+  }
+
+
+  void _sendToServer(Map<String, dynamic> message) {
+    userid = CacheHelper.getData(key: userprofielkey);
+    message["to_user_id"] = "$userid";
+    _channel.sink.add(jsonEncode(message));
+  }
+
+  void _handleRemoteStream(webrtc.MediaStream stream) {
+    remoteStream = stream;
+    update();
+    _playReceivedAudio(stream);
+  }
+
+  void _playReceivedAudio(webrtc.MediaStream stream) {
+    for (var track in stream.getAudioTracks()) {
+      track.enabled = true;
+    }
+    print("Playing received audio stream.");
+  }
+
+  void _handleIceConnectionState(webrtc.RTCIceConnectionState state) {
+    print("ICE Connection State: ${state.name}");
+    _showConnectionToast(state);
+    if (state ==
+            webrtc.RTCIceConnectionState.RTCIceConnectionStateDisconnected ||
+        state == webrtc.RTCIceConnectionState.RTCIceConnectionStateFailed) {
+      //Future.delayed(Duration(seconds: 5), _restartConnection);
+    }
+  }
+
+  void _showConnectionToast(webrtc.RTCIceConnectionState state) {
+    if (state == webrtc.RTCIceConnectionState.RTCIceConnectionStateConnected) {
+      _showToast("Connection established!", Colors.green);
+
+      isLoading = false;
+      update();
+    } else if (state ==
+        webrtc.RTCIceConnectionState.RTCIceConnectionStateCompleted) {
+      _showToast("Connection completed!", Colors.blue);
+
+      isLoading = false;
+      update();
+    } else if (state ==
+        webrtc.RTCIceConnectionState.RTCIceConnectionStateClosed) {
+      var audioTrack = localStream?.getAudioTracks()?.first;
+      isPressing = audioTrack != null ? audioTrack.enabled : false;
+      isLoading = false;
+      update();
+    }
+  }
+
+  void _showToast(String message, Color bgColor) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: bgColor,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
+
+  @override
+  void onClose() {
+    localStream?.dispose();
+    remoteStream?.dispose();
+    peerConnection.close();
+    super.onClose();
+  }
+}

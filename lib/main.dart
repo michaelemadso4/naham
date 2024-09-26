@@ -8,6 +8,7 @@ import 'package:naham/feutcher/mainScreen/view/Screen/mainScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
 import 'firebase_options.dart';
+import 'helper/WebRTCController.dart';
 import 'routes/app_pages.dart';
 
 
@@ -18,6 +19,7 @@ void main()async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  Get.put(WebRTCController());
 
   runApp(const MyApp());
 }
