@@ -7,43 +7,51 @@ class Groupcontainer extends StatelessWidget {
   final sendrmsg;
   final msgtxt;
   final onTap;
+  final onPressed;
   const Groupcontainer({super.key,
   required this.grouptitle,
   required this.sendrmsg,
   required this.msgtxt,
   required this.onTap,
+    required this.onPressed
   });
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        margin: EdgeInsets.all(10),
-        child: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: kPrimaryColor,
-              child: Icon(Icons.person_outline),
-            ),
-            SizedBox(width: 10,),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            width: double.infinity,
+            margin: EdgeInsets.all(10),
+            child: Row(
               children: [
-                Text('${grouptitle}',style: TextStyle(color: Colors.black,fontSize:18),
-                  textScaleFactor:
-                  ScaleSize.textScaleFactor(
-                      context),
+                CircleAvatar(
+                  backgroundColor: kPrimaryColor,
+                  child: Icon(Icons.person_outline),
                 ),
-                Text('${sendrmsg}: ${msgtxt}',style: TextStyle(color: Colors.grey,fontSize:18),
-                  textScaleFactor:
-                  ScaleSize.textScaleFactor(
-                      context),
-                ),
-              ],
-            )
-          ],),
-      ),
+                SizedBox(width: 10,),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${grouptitle}',style: TextStyle(color: Colors.black,fontSize:18),
+                      textScaleFactor:
+                      ScaleSize.textScaleFactor(
+                          context),
+                    ),
+                    Text('${sendrmsg}: ${msgtxt}',style: TextStyle(color: Colors.grey,fontSize:18),
+                      textScaleFactor:
+                      ScaleSize.textScaleFactor(
+                          context),
+                    ),
+                  ],
+                )
+              ],),
+          ),
+        ),
+        IconButton(onPressed: onPressed, icon: CircleAvatar(child: Icon(Icons.chat),))
+      ],
     );
   }
 }

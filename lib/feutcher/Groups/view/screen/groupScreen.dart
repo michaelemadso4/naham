@@ -8,6 +8,8 @@ import 'package:naham/helper/ToastMessag/toastmessag.dart';
 import 'package:naham/helper/scalesize.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+import 'pushToTalk/GRpushtotTalkScreen.dart';
+
 class Groupscreen extends StatelessWidget {
   const Groupscreen({super.key});
 
@@ -75,9 +77,13 @@ class Groupscreen extends StatelessWidget {
                           itemCount: groupmodel.data!.length,
                           itemBuilder: (context,index){
                             return Groupcontainer(
+                              onPressed: (){
+                                Get.to(()=>Groupchat(),arguments: {"group_id":groupmodel.data![index].id});
+
+                              },
                               onTap: (){
 
-                                Get.to(()=>Groupchat(),arguments: {"group_id":groupmodel.data![index].id});
+                                Get.to(()=>GrPushtottalkScreen(),arguments: {"group_id":groupmodel.data![index].id});
                               },
                               grouptitle: groupmodel.data![index].name,
                               msgtxt: '',
