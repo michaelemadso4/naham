@@ -20,37 +20,43 @@ class Groupcontainer extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        GestureDetector(
-          onTap: onTap,
-          child: Container(
-            width: double.infinity,
-            margin: EdgeInsets.all(10),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: kPrimaryColor,
-                  child: Icon(Icons.person_outline),
-                ),
-                SizedBox(width: 10,),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('${grouptitle}',style: TextStyle(color: Colors.black,fontSize:18),
-                      textScaleFactor:
-                      ScaleSize.textScaleFactor(
-                          context),
-                    ),
-                    Text('${sendrmsg}: ${msgtxt}',style: TextStyle(color: Colors.grey,fontSize:18),
-                      textScaleFactor:
-                      ScaleSize.textScaleFactor(
-                          context),
-                    ),
-                  ],
-                )
-              ],),
+        Flexible(
+          flex: 2,
+          child: GestureDetector(
+            onTap: onTap,
+            child: Container(
+              width: double.infinity,
+              margin: EdgeInsets.all(10),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: kPrimaryColor,
+                    child: Icon(Icons.person_outline),
+                  ),
+                  SizedBox(width: 10,),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${grouptitle}',style: TextStyle(color: Colors.black,fontSize:18),
+                        textScaleFactor:
+                        ScaleSize.textScaleFactor(
+                            context),
+                      ),
+                      Text('${sendrmsg}: ${msgtxt}',style: TextStyle(color: Colors.grey,fontSize:18),
+                        textScaleFactor:
+                        ScaleSize.textScaleFactor(
+                            context),
+                      ),
+                    ],
+                  )
+                ],),
+            ),
           ),
         ),
-        IconButton(onPressed: onPressed, icon: CircleAvatar(child: Icon(Icons.chat),))
+        Flexible(
+
+            flex: 0,
+            child: IconButton(onPressed: onPressed, icon: CircleAvatar(child: Icon(Icons.chat),)))
       ],
     );
   }

@@ -238,6 +238,7 @@ class GrPushtottalkScreen extends StatelessWidget {
                 Flexible(
                   flex: 2,
                   child: Container(
+                    width: double.infinity,
                     decoration: BoxDecoration(color: Colors.white),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
