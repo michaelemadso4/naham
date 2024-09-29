@@ -1,38 +1,38 @@
 // To parse this JSON data, do
 //
-//     final groupModel = groupModelFromJson(jsonString);
+//     final groupInfoModel = groupInfoModelFromJson(jsonString);
 
 import 'dart:convert';
 
-GroupModel groupModelFromJson(String str) => GroupModel.fromJson(json.decode(str));
+GroupInfoModel groupInfoModelFromJson(String str) => GroupInfoModel.fromJson(json.decode(str));
 
-String groupModelToJson(GroupModel data) => json.encode(data.toJson());
+String groupInfoModelToJson(GroupInfoModel data) => json.encode(data.toJson());
 
-class GroupModel {
-  bool ?success;
-  List<Datum>? data;
+class GroupInfoModel {
+  bool? success;
+  Data? data;
   String? message;
 
-  GroupModel({
+  GroupInfoModel({
     this.success,
     this.data,
     this.message,
   });
 
-  factory GroupModel.fromJson(Map<String, dynamic> json) => GroupModel(
+  factory GroupInfoModel.fromJson(Map<String, dynamic> json) => GroupInfoModel(
     success: json["success"],
-    data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+    data: Data.fromJson(json["data"]),
     message: json["message"],
   );
 
   Map<String, dynamic> toJson() => {
     "success": success,
-    "data": List<dynamic>.from(data!.map((x) => x.toJson())),
+    "data": data!.toJson(),
     "message": message,
   };
 }
 
-class Datum {
+class Data {
   int? id;
   String? name;
   String? code;
@@ -45,7 +45,7 @@ class Datum {
   int? usersCount;
   int? onlineUsersCount;
 
-  Datum({
+  Data({
     this.id,
     this.name,
     this.code,
@@ -59,7 +59,7 @@ class Datum {
     this.onlineUsersCount,
   });
 
-  factory Datum.fromJson(Map<String, dynamic> json) => Datum(
+  factory Data.fromJson(Map<String, dynamic> json) => Data(
     id: json["id"],
     name: json["name"],
     code: json["code"],

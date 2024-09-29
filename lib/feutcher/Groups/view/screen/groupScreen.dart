@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:naham/feutcher/Groups/controller/groupcontroller/groupcontroller.dart';
 import 'package:naham/feutcher/Groups/model/groupmodel.dart';
+import 'package:naham/feutcher/Groups/view/screen/GroupChat/GroupChat.dart';
 import 'package:naham/feutcher/Groups/view/widgets/groupContainer.dart';
+import 'package:naham/helper/ToastMessag/toastmessag.dart';
 import 'package:naham/helper/scalesize.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class Groupscreen extends StatelessWidget {
   const Groupscreen({super.key});
@@ -49,7 +52,12 @@ class Groupscreen extends StatelessWidget {
             builder: (controller) {
               return FutureBuilder(future: controller.GetGroupList(), builder: (context,snapshot){
                 if(snapshot.connectionState == ConnectionState.waiting){
-                  return Center(child: CircularProgressIndicator(),);
+                  return Center(child:  AnimatedSmoothIndicator(
+                    activeIndex: 1,
+                    count: 4,
+
+                    effect: WormEffect(),
+                  ),);
                 }else if(snapshot.hasError){
                   return Center(child:Text('Connection State has Error') ,);
                 }else if(snapshot.hasData){
@@ -67,6 +75,10 @@ class Groupscreen extends StatelessWidget {
                           itemCount: groupmodel.data!.length,
                           itemBuilder: (context,index){
                             return Groupcontainer(
+                              onTap: (){
+
+                                Get.to(()=>Groupchat(),arguments: {"group_id":groupmodel.data![index].id});
+                              },
                               grouptitle: groupmodel.data![index].name,
                               msgtxt: '',
                               sendrmsg: '',
@@ -75,11 +87,12 @@ class Groupscreen extends StatelessWidget {
                     ),
                   );
                 }else{
-                  return Center(child: Text('No Data'));
+                  return Center(child: Text('No Data',));
                 }
               });
             }
-          )
+          ),
+
         ],
       ),
     );

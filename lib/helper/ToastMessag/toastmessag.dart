@@ -10,7 +10,7 @@ void showToast({required String text,required ToastState state})=> Fluttertoast.
     fontSize: 16.0
 );
 enum ToastState{
-  SUCCESS,ERROR,WARNING
+  SUCCESS,ERROR,WARNING,COMPLEATE
 }
 Color choasToastColor(ToastState state){
   Color color;
@@ -24,6 +24,10 @@ Color choasToastColor(ToastState state){
     case ToastState.WARNING:
       color = Colors.amber;
       break;
+    case ToastState.COMPLEATE:
+      color = Colors.blueAccent;
+      break;
+
   }
   return color;
 }
