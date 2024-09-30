@@ -126,7 +126,7 @@ class CallScreen extends StatelessWidget {
                       )),
                       Flexible(
                           child: GetBuilder(
-                              init: ChatCallController(),
+                              init: ChatCallController(context),
                               builder: (context) {
                                 return Text("");
                               })),
@@ -145,11 +145,12 @@ class CallScreen extends StatelessWidget {
                               radius: 40  ,
                               backgroundColor: Colors.red,
                               child: GetBuilder(
-                                  init: ChatCallController(),
+                                  init: ChatCallController(context),
                                   builder: (controller) {
                                     return IconButton(
                                       onPressed: () {
-                                        controller.stopTalking();
+                                        controller.funStopTaking();
+                                        controller.EndCall();
                                         //controller.SendEndCallSocket();
                                         Get.back();
                                       },
@@ -162,9 +163,7 @@ class CallScreen extends StatelessWidget {
                                   }),
                             ),
                           ),
-                          Flexible(
-                              flex: 1,
-                              child: IconBtn(icon: Icons.camera_alt)),
+
                         ],
                       ),
 

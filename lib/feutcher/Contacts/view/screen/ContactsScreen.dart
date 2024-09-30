@@ -10,6 +10,7 @@ import 'package:naham/helper/scalesize.dart';
 import 'package:naham/helper/sherdprefrence/shardprefKeyConst.dart';
 import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
 
+import '../../controller/chatMainScreen/chatCallController.dart';
 import 'CallScreen/CallScreen.dart';
 
 class ContactsScreen extends StatelessWidget {
@@ -104,7 +105,7 @@ class ContactsScreen extends StatelessWidget {
                                  Expanded(
                                    flex: 0,
                                    child: GetBuilder(
-                                     init:SendNotificationController(context),
+                                     init:ChatCallController(context),
 
                                        builder: (controller) {
                                        return CircleAvatar(
@@ -112,8 +113,10 @@ class ContactsScreen extends StatelessWidget {
                                          child: IconButton(onPressed: ()async{
                                            await CacheHelper.saveData(key: userprofielkey, value: contactModel.data![index].id);
 
-                                           controller.SendNotification();
-                                           Get.to(() => CallScreen(),arguments: {});
+                                           controller.SendCall();
+                                           Get.to(() => CallScreen(),arguments: {
+                                             "userProfileKey":contactModel.data![index].id
+                                           });
                                          },
 
                                          icon: Icon(Icons.call,color: Colors.white,),),

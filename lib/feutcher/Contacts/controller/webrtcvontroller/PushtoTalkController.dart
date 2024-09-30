@@ -29,7 +29,7 @@ class PushToTalk extends GetxController {
   void onClose() {
     // TODO: implement onClose
    _cleanupResources();
-   print("close()++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+
     super.onClose();
   }
 
@@ -37,7 +37,7 @@ class PushToTalk extends GetxController {
   void dispose() {
     super.dispose();
     _cleanupResources();
-    print("dispose()++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+
 
   }
 
