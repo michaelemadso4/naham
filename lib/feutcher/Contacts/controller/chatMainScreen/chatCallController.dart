@@ -1,10 +1,13 @@
 import 'dart:convert';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart' as webrtc;
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:naham/feutcher/Contacts/view/screen/CallScreen/CallScreen.dart';
 import 'package:naham/feutcher/Contacts/view/widgets/Text/BodyDialog.dart';
 import 'package:naham/helper/ToastMessag/toastmessag.dart';
 import 'package:naham/helper/sherdprefrence/shardprefKeyConst.dart';
@@ -53,6 +56,7 @@ class ChatCallController extends GetxController {
     peerConnection?.onAddStream =
         _handleRemoteStream;
     peerConnection?.onIceConnectionState = _handleIceConnectionState;
+
     update();
   }
 
@@ -142,9 +146,6 @@ class ChatCallController extends GetxController {
     if (peerConnection != null) {
       await peerConnection?.close(); // Close any existing connection before starting a new one
     }
-
-
-
     await _initializeWebRTC();
 
     if (localStream == null || localStream!.getTracks().isEmpty) {
@@ -205,7 +206,6 @@ class ChatCallController extends GetxController {
     localStream?.getTracks().forEach((track) {
       peerConnection?.addTrack(track, localStream!);
     });
-    _handleAnswer(data);
   }
 
 
@@ -245,8 +245,23 @@ class ChatCallController extends GetxController {
     print(data['type']);
 
     switch (data['type']) {
+      case 'calling':
+        _handleCall(data);
+        break;
+        case 'accepting':
+        _handleAccept(data);
+        break;
+        case 'endcalling':
+        funStopTaking();
+        Get.back();
+        break;
+        case 'DeclineCall':
+        funStopTaking();
+        Get.back();
+        break;
+
       case 'offer':
-        _handleAOffer(data);
+        _handleOffer(data);
         break;
       case 'answer':
         _handleAnswer(data);
@@ -291,8 +306,22 @@ class ChatCallController extends GetxController {
       print(e);
     }
   }
+  ShowDeclineNotification(){
+
+  }
+  final AudioPlayer audioPlayer = AudioPlayer();
+  void _playRingtone() async {
+    await audioPlayer.play(UrlSource("https://dl.prokerala.com/downloads/ringtones/files/mp3/classic-5916.mp3")); // Ensure the path is correct
+  }
+
+  @override
+  void dispose() {
+    audioPlayer.dispose(); // Release resources
+    super.dispose();
+  }
 
   ShowCallingNotification(title,body,payload) async {
+    _playRingtone();
     await GetUserInfo(payload['sender_id']);
     showDialog(context: context, builder: (context){
       return Center(
@@ -313,8 +342,11 @@ class ChatCallController extends GetxController {
                       child: CircleAvatar(
                         radius: 45,
                         backgroundColor: Colors.red,
-                        child:IconButton(icon: Icon(Icons.call_end,color: Colors.white,size: 30,),onPressed: (){
-                          // DeclineCall(payload['payload']['sender_id']);
+                        child:IconButton(icon: Icon(Icons.call_end,color: Colors.white,size: 30,),onPressed: ()async{
+
+                          await audioPlayer.stop();
+                          Get.back();
+                          DeclineCall();
                         },),),
                     ),
                     Expanded(
@@ -322,8 +354,15 @@ class ChatCallController extends GetxController {
                         radius: 45,
                         backgroundColor: Colors.green,
                         child:IconButton(icon: Icon(Icons.call,color: Colors.white,size: 30),onPressed: () async {
-                          _handleOffer(payload);
-                          StartCall(payload);
+                          funStartTaking();
+                          _sendToServer({'type': 'accepting'});
+                          await CacheHelper.saveData(key: userprofielkey, value:userProfileModel.data!.id );
+                          Get.back();
+                          Get.to(() => CallScreen(),arguments: {
+                            "userProfileKey":userProfileModel.data!.id
+                          });
+
+                          await audioPlayer.stop();
 
                         },),),
                     )
@@ -337,10 +376,28 @@ class ChatCallController extends GetxController {
   }
 
 
+  void SendCall(){
+    _sendToServer({'type': 'calling'});
 
-  void _handleAOffer(Map<String, dynamic> data) async {
+  }
+  void DeclineCall(){
+    _sendToServer({'type': 'DeclineCall'});
+
+  }
+  void EndCall(){
+    _sendToServer({'type': 'endcalling'});
+
+  }
+
+  void _handleCall(Map<String, dynamic> data) async {
 
     ShowCallingNotification("title","body",data);
+
+  }
+
+  void _handleAccept(Map<String, dynamic> data) async {
+
+    funStartTaking();
 
   }
   void _handleOffer(Map<String, dynamic> data) async {
