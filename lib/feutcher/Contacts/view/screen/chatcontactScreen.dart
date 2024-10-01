@@ -324,7 +324,8 @@ class Chatcontactscreen extends StatelessWidget {
                             isLoading: controller.isLoading,
                             isPersing: controller.isPressing,
                             onLongPressEnd: () {},
-                            onLongPress: () {
+                            onLongPress: (){},
+                            onTap: () {
                               // If the button is loading, stop taking and terminate the connection.
                               if (controller.isLoading) {
                                 controller.funStopTaking();

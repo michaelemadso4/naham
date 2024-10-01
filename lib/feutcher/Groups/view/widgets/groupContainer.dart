@@ -56,7 +56,9 @@ class Groupcontainer extends StatelessWidget {
         Flexible(
 
             flex: 0,
-            child: IconButton(onPressed: onPressed, icon: CircleAvatar(child: Icon(Icons.chat),)))
+            child: IconButton(onPressed: onPressed, icon: CircleAvatar(
+    radius: 30
+    ,backgroundColor: kPrimaryColor,child: Icon(Icons.chat,color: Colors.white,),)))
       ],
     );
   }

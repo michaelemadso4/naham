@@ -4,7 +4,11 @@ class MicRecordBtn extends StatelessWidget {
   final VoidCallback onLongPress;
   final onLongPressEnd;
   final bool isPersing, isLoading ;
-  const MicRecordBtn({super.key,required this.onLongPress,required this.onLongPressEnd,required this.isLoading, required this.isPersing});
+  final VoidCallback onTap;
+
+
+
+  const MicRecordBtn({super.key,required this.onLongPress,required this.onLongPressEnd,required this.isLoading, required this.isPersing,required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +17,7 @@ class MicRecordBtn extends StatelessWidget {
     height = size.height;
     width = size.width;
     return GestureDetector(
-      onTap: onLongPress,
+      onTap: onTap,
       // onLongPress: onLongPress,
       // onLongPressEnd:onLongPressEnd ,
       child: Container(

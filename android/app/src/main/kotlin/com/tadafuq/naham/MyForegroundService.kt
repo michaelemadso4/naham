@@ -32,6 +32,7 @@ class MyForegroundService : Service() {
         return START_NOT_STICKY
     }
 
+
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }

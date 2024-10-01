@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:naham/feutcher/Groups/model/GrAllMessageModel.dart';
 import 'package:naham/feutcher/Groups/model/GrMsgSendModel.dart';
+import 'package:naham/feutcher/Groups/model/groupinfomodel.dart';
 import 'package:naham/helper/WebService/webServiceConstant.dart';
 import 'package:naham/helper/sherdprefrence/shardprefKeyConst.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -68,6 +69,7 @@ class GroupChatController extends GetxController{
     // TODO: implement onInit
     connectToChatSocketServer();
     FetchAllMessage();
+    GetGroupInfo();
     super.onInit();
   }
 
@@ -82,7 +84,10 @@ class GroupChatController extends GetxController{
     webSocketChannel.sink.close();
   }
 
-  Future GetGroupInfo() async {
+  String group_name ='';
+  int group_members= 0;
+  int group_isonlin= 0;
+  GetGroupInfo() async {
 
     var group_id = Get.arguments['group_id'];
     String access_token =  CacheHelper.getData(key: access_tokenkey);
@@ -102,7 +107,12 @@ class GroupChatController extends GetxController{
 
       if (response.statusCode == 200) {
         print(json.encode(response.data));
-        return response.data;
+        GroupInfoModel groupInfoModel = GroupInfoModel();
+        groupInfoModel = GroupInfoModel.fromJson(response.data);
+        group_name = groupInfoModel.data!.name??"";
+        group_members = groupInfoModel.data!.usersCount!;
+        group_isonlin = groupInfoModel.data!.onlineUsersCount!;
+
       }
       else {
         print(response.statusMessage);

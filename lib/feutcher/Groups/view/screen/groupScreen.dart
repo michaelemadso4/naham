@@ -6,6 +6,8 @@ import 'package:naham/feutcher/Groups/view/screen/GroupChat/GroupChat.dart';
 import 'package:naham/feutcher/Groups/view/widgets/groupContainer.dart';
 import 'package:naham/helper/ToastMessag/toastmessag.dart';
 import 'package:naham/helper/scalesize.dart';
+import 'package:naham/helper/sherdprefrence/shardprefKeyConst.dart';
+import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import 'pushToTalk/GRpushtotTalkScreen.dart';
@@ -78,11 +80,14 @@ class Groupscreen extends StatelessWidget {
                           itemBuilder: (context,index){
                             return Groupcontainer(
                               onPressed: (){
+                                print("groupId " + groupmodel.data![index].id.toString());
+                                CacheHelper.saveData(key: groupidKey , value: groupmodel.data![index].id);
+
                                 Get.to(()=>Groupchat(),arguments: {"group_id":groupmodel.data![index].id});
 
                               },
                               onTap: (){
-
+                                CacheHelper.saveData(key: groupidKey , value: groupmodel.data![index].id);
                                 Get.to(()=>GrPushtottalkScreen(),arguments: {"group_id":groupmodel.data![index].id});
                               },
                               grouptitle: groupmodel.data![index].name,

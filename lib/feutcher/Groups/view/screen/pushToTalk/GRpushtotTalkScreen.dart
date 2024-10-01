@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:naham/feutcher/Contacts/view/widgets/btn/micrecordbtn.dart';
 import 'package:naham/feutcher/Contacts/view/widgets/containerChat/containerChatMessage.dart';
+import 'package:naham/feutcher/Groups/controller/GrPushTalkController/GrPushTalkController.dart';
 import 'package:naham/feutcher/Groups/controller/group_Chat/group_chat_controller.dart';
 import 'package:naham/feutcher/Groups/model/groupinfomodel.dart';
 import 'package:naham/feutcher/Groups/view/widgets/Edt/EDT.dart';
 import 'package:naham/feutcher/Groups/view/widgets/backgroungGroup/BackGround_Group.dart';
+import 'package:naham/helper/ToastMessag/toastmessag.dart';
+import 'package:naham/helper/WebRTCController.dart';
+import 'package:naham/helper/WebRTCGroupController.dart';
+import 'package:naham/helper/sherdprefrence/shardprefKeyConst.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../../../../helper/colors/colorsconstant.dart';
 import '../../../../../helper/scalesize.dart';
+import '../../../../../helper/sherdprefrence/sharedprefrenc.dart';
 import '../../widgets/appbargroup/App_Bar_Group.dart';
+import '../GroupChat/GroupChat.dart';
 
 class GrPushtottalkScreen extends StatelessWidget {
   const GrPushtottalkScreen({super.key});
@@ -35,33 +43,10 @@ class GrPushtottalkScreen extends StatelessWidget {
                 GetBuilder(
                     init: GroupChatController(),
                     builder: (controller) {
-                      return FutureBuilder(
-                          future: controller.GetGroupInfo(),
-                          builder: (context, snapShot) {
-                            if (snapShot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Container(
-                                child: Center(
-                                  child: AnimatedSmoothIndicator(
-                                    activeIndex: 1,
-                                    count: 4,
-                                    effect: WormEffect(),
-                                  ),
-                                ),
-                              );
-                            } else if (snapShot.hasData) {
-                              GroupInfoModel groupInfoModel = GroupInfoModel();
-                              groupInfoModel =
-                                  GroupInfoModel.fromJson(snapShot.data);
-                              return AppBarGroup(
-                                  apptitle: "${groupInfoModel.data!.name}",
-                                  isonline:
-                                      groupInfoModel.data!.onlineUsersCount!,
-                                  member: groupInfoModel.data!.usersCount!);
-                            } else {
-                              return Text("no Data");
-                            }
-                          });
+                      return  AppBarGroup(
+                          apptitle: "${controller.group_name}",
+                          isonline:controller.group_isonlin,
+                          member: controller.group_members);
                     }),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -190,28 +175,7 @@ class GrPushtottalkScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
-                      margin: EdgeInsets.only(top: 10, right: 10, bottom: 10),
-                      child: Column(
-                        children: [
-                          CircleAvatar(
-                            radius: 40,
-                            backgroundColor: kTheryColor,
-                            child: InkWell(
-                              onTap: () {},
-                              child: Icon(
-                                Icons.mic_none,
-                                size: 40,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            'File',
-                            textScaleFactor: ScaleSize.textScaleFactor(context),
-                          ),
-                        ],
-                      ),
-                    ),
+
                     Container(
                       margin: EdgeInsets.only(top: 10, right: 10, bottom: 10),
                       child: Column(
@@ -243,13 +207,43 @@ class GrPushtottalkScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        MicRecordBtn(
-                          isLoading: false,
-                          isPersing: false,
-                          onLongPressEnd: () {},
-                          onLongPress: () {
+                        GetBuilder<WebRTCGroupController>(
+                          init: WebRTCGroupController(),
+                          builder: (controller) {
+
+                            return MicRecordBtn(
+                              isLoading: controller.isLoading,
+                              isPersing: controller.isPressing,
+                              onLongPressEnd: () {},
+                              onLongPress: (){},
+                              onTap: () {
+                                // If the button is loading, stop taking and terminate the connection.
+                                if (controller.isLoading) {
+                                  controller.stopTalking();
+                                  return;
+                                }
+
+                                // If the button is not loading and pressing, start taking/mic
+                                if (!controller.isPressing) {
+                                  controller.startTalking();
+                                } else {
+                                  // If already in pressing state, stop it
+                                  controller.stopTalking();
+                                }
+                              },
+                            );
                           },
-                        )
+                        ),
+
+                        Flexible(
+
+                            flex: 0,
+                            child: IconButton(onPressed: (){
+                              Get.to(()=>Groupchat(),arguments: {"group_id":2});
+                              showToast(text: "Change group id", state: ToastState.WARNING);
+                            }, icon: CircleAvatar(
+                              radius: 30
+                              ,backgroundColor: kPrimaryColor,child: Icon(Icons.chat,color: Colors.white,),)))
                       ],
                     ),
                   ),

@@ -132,7 +132,6 @@ class SendNotificationController extends GetxController{
       print(e);
     }
   }
-  ChatCallController chatCallController = ChatCallController();
 
   ShowCallingNotification(title,body,payload) async {
    await GetUserInfo(payload['payload']['sender_id']);

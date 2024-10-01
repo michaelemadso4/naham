@@ -8,8 +8,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:naham/feutcher/Contacts/controller/chatMainScreen/chatCallController.dart';
 import 'package:naham/feutcher/Contacts/controller/chatMainScreen/chatMainControlle.dart';
-import 'package:naham/feutcher/Contacts/controller/firebaseChatController.dart';
-import 'package:naham/feutcher/Contacts/controller/pusherChatController.dart';
+
 import 'package:naham/feutcher/Contacts/controller/userinfoController.dart';
 import 'package:naham/feutcher/Contacts/view/screen/CallScreen/CallScreen.dart';
 import 'package:naham/feutcher/Contacts/view/screen/operator/chatoperator.dart';

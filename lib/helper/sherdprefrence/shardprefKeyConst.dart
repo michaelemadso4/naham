@@ -7,3 +7,5 @@ String userphotoKey ='userphotoKey';
 String usergurdKey ='userGurdKey';
 
 String userprofielkey = 'userprofilekey';
+
+String groupidKey = "groupidKey";

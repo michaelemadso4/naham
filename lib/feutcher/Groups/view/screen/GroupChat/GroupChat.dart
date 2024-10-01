@@ -35,23 +35,10 @@ class Groupchat extends StatelessWidget {
               GetBuilder(
                 init: GroupChatController(),
                 builder: (controller) {
-                  return FutureBuilder(future: controller.GetGroupInfo(), builder: (context,snapShot){
-                    if(snapShot.connectionState == ConnectionState.waiting){
-                      return Container(child:Center(
-                        child: AnimatedSmoothIndicator(
-                          activeIndex: 1,
-                          count: 4,
-                          effect: WormEffect(),
-                        ),
-                      ) ,);
-                    }else if(snapShot.hasData){
-                      GroupInfoModel groupInfoModel= GroupInfoModel();
-                      groupInfoModel = GroupInfoModel.fromJson(snapShot.data);
-                      return AppBarGroup(apptitle: "${groupInfoModel.data!.name}", isonline:groupInfoModel.data!.onlineUsersCount! , member: groupInfoModel.data!.usersCount!);
-                    }else{
-                      return Text("no Data");
-                    }
-                  });
+                  return  AppBarGroup(
+                      apptitle: "${controller.group_name}",
+                      isonline:controller.group_isonlin,
+                      member: controller.group_members);
                 }
               ),
               Row(

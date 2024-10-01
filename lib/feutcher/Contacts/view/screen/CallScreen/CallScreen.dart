@@ -30,8 +30,10 @@ class CallScreen extends StatelessWidget {
               colors: [
                 kTheryColor,
                 kPrimaryColor,
+
                 kSceonderyColor,
                 kTheryColor,
+
               ],
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
@@ -74,68 +76,69 @@ class CallScreen extends StatelessWidget {
                       Flexible(
                         flex: 2,
                         child: GetBuilder(
-                          init: UserInfoController(),
-                          builder: (controller) {
-                            return FutureBuilder(future: controller.GetUserInfo(), builder: (context,snapshot){
-                              if(snapshot.connectionState == ConnectionState.waiting) {
-                                return Padding(
-                                  padding: const EdgeInsets.all(30.0),
-                                  child: LinearProgressIndicator(borderRadius: BorderRadius.circular(20),),
-                                );
-                              }
-                              else if(snapshot.hasData){
-                                UserprofileModel userProfileModel = UserprofileModel();
-                                userProfileModel = UserprofileModel.fromJson(snapshot.data);
-                                return Column(
-                                  children: [
-                                    Flexible(
-                                        flex: 1,child: Titletxt(data: '${userProfileModel.data!.name}')),
-                                    Flexible(
-                                      flex: 1,
-                                      child: Body1txt(data: "${userProfileModel.data!.email}"),
-                                    ),
-                                  ],
-                                );
-                              }else{
-                                return Column(
-                                  children: [
-                                    Flexible(
-                                      child: Stack(
-                                        alignment: Alignment.bottomCenter,
-                                        children: [
-                                          Icon(Icons.cloud,color: Colors.red,size: 60,),
-                                          Icon(Icons.offline_bolt,color: Colors.white,size: 20,),
-                                        ],
+                            init: UserInfoController(),
+                            builder: (controller) {
+                              return FutureBuilder(future: controller.GetUserInfo(), builder: (context,snapshot){
+                                if(snapshot.connectionState == ConnectionState.waiting) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(30.0),
+                                    child: LinearProgressIndicator(borderRadius: BorderRadius.circular(20),),
+                                  );
+                                }
+                                else if(snapshot.hasData){
+                                  UserprofileModel userProfileModel = UserprofileModel();
+                                  userProfileModel = UserprofileModel.fromJson(snapshot.data);
+                                  return Column(
+                                    children: [
+                                      Flexible(
+                                          flex: 1,child: Titletxt(data: '${userProfileModel.data!.name}')),
+                                      Flexible(
+                                        flex: 1,
+                                        child: Body1txt(data: "${userProfileModel.data!.email}"),
                                       ),
-                                    ),
-                                    SizedBox(height: 16,),
-                                    Flexible(child: Body2txt(data: "Oops!")),
-                                    Flexible(child: Body1txt(data: "No Internet  connection found\ncheck yout connectio or Try Again"))
-                                  ],
-                                );
-                              }
-                            });
-                          }
+                                    ],
+                                  );
+                                }else{
+                                  return Column(
+                                    children: [
+                                      Flexible(
+                                        child: Stack(
+                                          alignment: Alignment.bottomCenter,
+                                          children: [
+                                            Icon(Icons.cloud,color: Colors.red,size: 60,),
+                                            Icon(Icons.offline_bolt,color: Colors.white,size: 20,),
+
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(height: 16,),
+                                      Flexible(child: Body2txt(data: "Oops!")),
+                                      Flexible(child: Body1txt(data: "No Internet  connection found\ncheck yout connectio or Try Again"))
+                                    ],
+                                  );
+                                }
+                              });
+                            }
                         ),
                       ),
                       Flexible(flex: 1, child: GetBuilder(
-                        init: TimeController(),
-                        builder: (controller) {
-                          return Body2txt(data: "${controller.formatTime(controller.counter)}");
-                        }
+                          init: TimeController(),
+                          builder: (controller) {
+                            return Body2txt(data: "${controller.formatTime(controller.counter)}");
+                          }
                       )),
                       Flexible(
                           child: GetBuilder(
-                              init: ChatCallController(),
+                              init: ChatCallController(context),
                               builder: (context) {
                                 return Text("");
                               })),
                       Spacer(),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center ,
-                          children: [
+                        children: [
                           Flexible(
-                                flex: 1,
+                              flex: 1,
                               child: IconBtn(icon: Icons.mic)),
 
                           Flexible(
@@ -145,12 +148,11 @@ class CallScreen extends StatelessWidget {
                               radius: 40  ,
                               backgroundColor: Colors.red,
                               child: GetBuilder(
-                                  init: ChatCallController(),
+                                  init: ChatCallController(context),
                                   builder: (controller) {
                                     return IconButton(
                                       onPressed: () {
-                                        controller.stopTalking();
-                                        //controller.SendEndCallSocket();
+                                        // controller.stopTalking();
                                         Get.back();
                                       },
                                       icon: Icon(
