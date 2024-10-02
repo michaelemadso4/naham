@@ -16,8 +16,6 @@ class WebRTCGroupController extends GetxController {
   late WebSocketChannel _channel;
   int userid = 0;
 
-
-
   @override
   void onInit() {
     super.onInit();
@@ -34,9 +32,11 @@ class WebRTCGroupController extends GetxController {
 
     for (int userId in groupUserIds) {
       // Create a peer connection and add it to the peerConnections map
-      webrtc.RTCPeerConnection peerConnection = await _createPeerConnection(userId);
+      webrtc.RTCPeerConnection peerConnection =
+          await _createPeerConnection(userId);
       peerConnections[userId] = peerConnection;
-      peerConnections[userId]?.onIceConnectionState = _handleIceConnectionState;// Add to the peerConnections map
+      peerConnections[userId]?.onIceConnectionState =
+          _handleIceConnectionState; // Add to the peerConnections map
     }
 
     update(); // Update the UI to reflect the changes
@@ -50,22 +50,30 @@ class WebRTCGroupController extends GetxController {
     _channel = WebSocketChannel.connect(
       Uri.parse('wss://naham.tadafuq.ae?user_id=$myuserid&token=$usertoken'),
     );
-    print("socket url ${'wss://naham.tadafuq.ae?user_id=$myuserid&token=$usertoken'}");
-    _channel.stream.listen(_handleSocketMessage, onDone: _handleWebSocketDisconnection, onError: _handleWebSocketError);
+    print(
+        "socket url ${'wss://naham.tadafuq.ae?user_id=$myuserid&token=$usertoken'}");
+    _channel.stream.listen(_handleSocketMessage,
+        onDone: _handleWebSocketDisconnection, onError: _handleWebSocketError);
   }
 
   bool isLoading = false;
   bool isPressing = false;
 
+
   void startTalking() async {
     await _initializeWebRTC();
+    await initializePeerConnectionsForGroup();
     isLoading = true;
+    isPressing = false;
+
+    update();
 
     // Enable local audio tracks for speaking
     localStream?.getAudioTracks().forEach((track) {
       track.enabled = true;
     });
 
+    var myuserid = CacheHelper.getData(key: useridKey);
     // Create and send offers to all peers
     for (var entry in peerConnections.entries) {
       int userId = entry.key;
@@ -76,21 +84,27 @@ class WebRTCGroupController extends GetxController {
       await peerConnection.setLocalDescription(offer);
 
       // Send the offer to the signaling server with group information
-      _sendToServer({
-        'type': 'offer',
-        'sdp': offer.sdp,
-        'to_user_id': userId, // Send offer to specific peer
-        'to_group_id': 2,     // Group ID for reference
-      });
+      if(userId != myuserid) {
+        _sendToServer({
+          'type': 'offer',
+          'sdp': offer.sdp,
+          'to_user_id': userId, // Send offer to specific peer
+          /*'to_group_id': 2,*/ // Group ID for reference
+        });
+      }
     }
   }
-
 
   void stopTalking() {
     isLoading = false;
     isPressing = false;
-    localStream?.getAudioTracks().forEach((track) {
-      track.enabled = false;
+
+    peerConnections.forEach((_, connection) {
+      connection.close();
+    });
+    localStream?.dispose();
+    remoteStreams.forEach((_, stream) {
+      stream.dispose();
     });
     update();
   }
@@ -98,10 +112,6 @@ class WebRTCGroupController extends GetxController {
   Future<void> _initializeWebRTC() async {
     localStream = await _getUserMedia();
   }
-
-  // void _handleIceCandidate(webrtc.RTCIceCandidate candidate) {
-  //   _sendToServer({'type': 'candidate', 'candidate': candidate.toMap()});
-  // }
 
 
   Future<webrtc.MediaStream> _getUserMedia() async {
@@ -179,10 +189,15 @@ class WebRTCGroupController extends GetxController {
         },
       ],
     };
-    webrtc.RTCPeerConnection peerConnection = await webrtc.createPeerConnection(configuration);
+    webrtc.RTCPeerConnection peerConnection =
+        await webrtc.createPeerConnection(configuration);
 
     peerConnection.onIceCandidate = (webrtc.RTCIceCandidate candidate) {
-      _sendToServer({'type': 'candidate', 'candidate': candidate.toMap(), 'to_group_id': 2});
+      _sendToServer({
+        'type': 'candidate',
+        'candidate': candidate.toMap(),
+        'to_group_id': 2
+      });
     };
 
     peerConnection.onAddStream = (webrtc.MediaStream stream) {
@@ -200,7 +215,6 @@ class WebRTCGroupController extends GetxController {
     return peerConnection;
   }
 
-
   void _handleWebSocketDisconnection() {
     Fluttertoast.showToast(
       msg: "WebSocket disconnected!",
@@ -213,7 +227,9 @@ class WebRTCGroupController extends GetxController {
 
     _sendToServer({'type': 'terminate'});
     _initializeWebRTC();
-    Future.delayed(Duration(seconds: 1), _connectToSignalingServer); // Restart connection
+    initializePeerConnectionsForGroup();
+    Future.delayed(
+        Duration(seconds: 1), _connectToSignalingServer); // Restart connection
   }
 
   void _handleWebSocketError(error) {
@@ -223,16 +239,16 @@ class WebRTCGroupController extends GetxController {
   }
 
   Future<void> _restartConnection() async {
-    //await peerConnection?.close();
+
     await _initializeWebRTC();
+    await initializePeerConnectionsForGroup();
     _connectToSignalingServer();
   }
 
-
   void _handleSocketMessage(dynamic message) {
-    final data = jsonDecode(message as String); // Cast 'message' to String before decoding
+    final data = jsonDecode(
+        message as String); // Cast 'message' to String before decoding
     print("Data from socket: $message");
-    //CacheHelper.saveData(key: userprofielkey, value: data["sender_id"]);
 
     print(data['type']);
 
@@ -273,11 +289,13 @@ class WebRTCGroupController extends GetxController {
     int senderId = data['sender_id'];
 
     // Ensure the peer connection exists or create one
-    webrtc.RTCPeerConnection peerConnection = peerConnections[senderId] ?? await _createPeerConnection(senderId);
+    webrtc.RTCPeerConnection peerConnection =
+        peerConnections[senderId] ?? await _createPeerConnection(senderId);
 
-    if (peerConnection.signalingState == webrtc.RTCSignalingState.RTCSignalingStateStable ||
-        peerConnection.signalingState == webrtc.RTCSignalingState.RTCSignalingStateHaveRemoteOffer) {
-
+    if (peerConnection.signalingState ==
+            webrtc.RTCSignalingState.RTCSignalingStateStable ||
+        peerConnection.signalingState ==
+            webrtc.RTCSignalingState.RTCSignalingStateHaveRemoteOffer) {
       // Set the remote description (offer)
       final description = webrtc.RTCSessionDescription(data['sdp'], 'offer');
       await peerConnection.setRemoteDescription(description);
@@ -291,7 +309,6 @@ class WebRTCGroupController extends GetxController {
         'type': 'answer',
         'sdp': answer.sdp,
         'to_user_id': senderId, // Respond to the peer who sent the offer
-        'to_group_id': 2,
       });
     }
   }
@@ -302,9 +319,12 @@ class WebRTCGroupController extends GetxController {
       webrtc.RTCPeerConnection peerConnection = peerConnections[senderId]!;
 
       // Check if the signaling state is appropriate for setting the answer
-      if (peerConnection.signalingState == webrtc.RTCSignalingState.RTCSignalingStateHaveLocalOffer) {
+      if (peerConnection.signalingState ==
+          webrtc.RTCSignalingState.RTCSignalingStateHaveLocalOffer) {
         final description = webrtc.RTCSessionDescription(data['sdp'], 'answer');
         await peerConnection.setRemoteDescription(description);
+        print("answeeeeeeeeeeeeer");
+
         isPressing = true;
         isLoading = false;
         update();
@@ -314,14 +334,6 @@ class WebRTCGroupController extends GetxController {
     }
   }
 
-  void  _handleIceCandidate(webrtc.RTCIceCandidate candidate, int toUserId) {
-    _sendToServer({
-      'type': 'candidate',
-      'candidate': candidate.toMap(),
-      'to_user_id': toUserId, // Send the candidate to a specific peer
-      'to_group_id': 2, // Group ID for reference
-    });
-  }
 
   void _handleStop() {
     if (isPressing) {
@@ -332,21 +344,13 @@ class WebRTCGroupController extends GetxController {
     }
   }
 
-
-
-
   void _sendToServer(Map<String, dynamic> message) {
-    //userid = CacheHelper.getData(key: userprofielkey);
     var myuserid = CacheHelper.getData(key: useridKey);
-    //message["to_user_id"] = "$userid";
-    message["sender_id"]=myuserid;
-    message["to_group_id"] = 2;
-    //print("sending to $userid");
+    message["sender_id"] = myuserid;
     print("sending from $myuserid");
     print("sendiiiiiiiiiiiiiing");
     _channel.sink.add(jsonEncode(message));
   }
-
 
   void _playReceivedAudio(webrtc.MediaStream stream) {
     for (var track in stream.getAudioTracks()) {
@@ -359,8 +363,9 @@ class WebRTCGroupController extends GetxController {
     print("ICE Connection State: ${state.name}");
     _showConnectionToast(state);
     if (state ==
-        webrtc.RTCIceConnectionState.RTCIceConnectionStateDisconnected ||
+            webrtc.RTCIceConnectionState.RTCIceConnectionStateDisconnected ||
         state == webrtc.RTCIceConnectionState.RTCIceConnectionStateFailed) {
+      _showToast("Connection failed or disconnected ", Colors.red);
       //Future.delayed(Duration(seconds: 5), _restartConnection);
     }
   }
@@ -369,21 +374,17 @@ class WebRTCGroupController extends GetxController {
     if (state == webrtc.RTCIceConnectionState.RTCIceConnectionStateConnected) {
       _showToast("Connection established!", Colors.green);
 
-      //isLoading = false;
-      //isPressing = true;
+
       update();
     } else if (state ==
         webrtc.RTCIceConnectionState.RTCIceConnectionStateCompleted) {
       _showToast("Connection completed!", Colors.blue);
 
-      //isLoading = false;
-      //isPressing = true;
+
       update();
     } else if (state ==
         webrtc.RTCIceConnectionState.RTCIceConnectionStateClosed) {
-      var audioTrack = localStream?.getAudioTracks()?.first;
-      isPressing = audioTrack != null ? audioTrack.enabled : false;
-      //isLoading = false;
+      _showToast("Connection closed!", Colors.red);
       update();
     }
   }
