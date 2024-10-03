@@ -9,11 +9,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:naham/feutcher/Contacts/view/screen/CallScreen/CallScreen.dart';
 import 'package:naham/feutcher/Contacts/view/widgets/Text/BodyDialog.dart';
+import 'package:naham/helper/SocketController.dart';
 import 'package:naham/helper/ToastMessag/toastmessag.dart';
 import 'package:naham/helper/sherdprefrence/shardprefKeyConst.dart';
 import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/status.dart' as status;
 
 import '../../../../helper/WebService/webServiceConstant.dart';
 import '../../model/userprofielmodel.dart';
@@ -29,23 +28,24 @@ class ChatCallController extends GetxController {
   webrtc.MediaStream? localStream;
   webrtc.MediaStream? remoteStream;
 
-  late WebSocketChannel _channel;
+
   int userid = 0;
+  late SocketController socketController;
 
   @override
   void onInit() {
     super.onInit();
-    _connectToSignalingServer();
-    _initializeWebRTC();
-  }
-  void _connectToSignalingServer() {
-    var myuserid = CacheHelper.getData(key: useridKey);
-    var usertoken = CacheHelper.getData(key: access_tokenkey);
+    var myUserId = CacheHelper.getData(key: useridKey);
+    var userToken = CacheHelper.getData(key: access_tokenkey);
+    // Initialize the SocketController
+    socketController = SocketController();
+    //socketController.initialize(userId: myUserId.toString(), token: userToken);
 
-    _channel = WebSocketChannel.connect(
-      Uri.parse('wss://naham.tadafuq.ae?user_id=$myuserid&token=$usertoken'),
-    );
-    _channel.stream.listen(_handleSocketMessage, onDone: _handleWebSocketDisconnection, onError: _handleWebSocketError);
+// Registering listeners
+    socketController.addMessageListener(_handleSocketMessage);
+    socketController.addDisconnectListener(_restartConnection);
+    socketController.addErrorListener(_restartConnection);
+    _initializeWebRTC();
   }
 
   Future<void> _initializeWebRTC() async {
@@ -209,21 +209,7 @@ class ChatCallController extends GetxController {
   }
 
 
-  void _handleWebSocketDisconnection() {
-    Fluttertoast.showToast(
-      msg: "WebSocket disconnected!",
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.red,
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
 
-    _sendToServer({'type': 'terminate'});
-    peerConnection?.close();
-    _initializeWebRTC();
-    Future.delayed(Duration(seconds: 1), _connectToSignalingServer); // Restart connection
-  }
 
   void _handleWebSocketError(error) {
     print("WebSocket error: $error");
@@ -234,7 +220,6 @@ class ChatCallController extends GetxController {
   Future<void> _restartConnection() async {
     await peerConnection?.close();
     await _initializeWebRTC();
-    _connectToSignalingServer();
   }
 
   void _handleSocketMessage(dynamic message) {
@@ -244,38 +229,41 @@ class ChatCallController extends GetxController {
 
     print(data['type']);
 
-    switch (data['type']) {
-      case 'calling':
-        _handleCall(data);
-        break;
+    if(data["screen"] == "chat"){
+      switch (data['type']) {
+        case 'calling':
+          _handleCall(data);
+          break;
         case 'accepting':
-        _handleAccept(data);
-        break;
+          _handleAccept(data);
+          break;
         case 'endcalling':
-        funStopTaking();
-        Get.back();
-        break;
+          funStopTaking();
+          Get.back();
+          break;
         case 'DeclineCall':
-        funStopTaking();
-        Get.back();
-        break;
+          funStopTaking();
+          Get.back();
+          break;
 
-      case 'offer':
-        _handleOffer(data);
-        break;
-      case 'answer':
-        _handleAnswer(data);
-        break;
-      case 'candidate':
-        _handleCandidate(data);
-        break;
-      case 'stop':
-        _handleStop();
-        break;
-      case 'terminate':
-        _handleTerminate();
-        break;
+        case 'offer':
+          _handleOffer(data);
+          break;
+        case 'answer':
+          _handleAnswer(data);
+          break;
+        case 'candidate':
+          _handleCandidate(data);
+          break;
+        case 'stop':
+          _handleStop();
+          break;
+        case 'terminate':
+          _handleTerminate();
+          break;
+      }
     }
+
   }
   UserprofileModel userProfileModel = UserprofileModel();
   GetUserInfo(userid)async{
@@ -464,9 +452,11 @@ class ChatCallController extends GetxController {
     var myuserid = CacheHelper.getData(key: useridKey);
     message["to_user_id"] = "$userid";
     message["sender_id"]=myuserid;
+    message["screen"] = "chat";
     print("sending to $userid");
     print("sending from $myuserid");
-    _channel.sink.add(jsonEncode(message));
+    socketController.sendToServer(message);
+    //_channel.sink.add(jsonEncode(message));
   }
 
   void _handleRemoteStream(webrtc.MediaStream stream) {

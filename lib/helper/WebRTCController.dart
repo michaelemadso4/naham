@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart' as webrtc;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:naham/helper/SocketController.dart';
 import 'package:naham/helper/sherdprefrence/shardprefKeyConst.dart';
 import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+
 
 import 'WebRTCGroupController.dart';
 
@@ -15,28 +16,30 @@ class WebRTCController extends GetxController {
   webrtc.MediaStream? localStream;
   webrtc.MediaStream? remoteStream;
 
-  late WebSocketChannel _channel;
   int userid = 0;
 
+  late SocketController socketController;
 
 
 
   @override
   void onInit() {
     super.onInit();
-    _connectToSignalingServer();
+    print("inittttttttttttttttttttttttttttt");
+    var myUserId = CacheHelper.getData(key: useridKey);
+    var userToken = CacheHelper.getData(key: access_tokenkey);
+    // Initialize the SocketController
+    socketController = SocketController();
+    socketController.initialize(userId: myUserId.toString(), token: userToken);
+
+// Registering listeners
+    socketController.addMessageListener(_handleSocketMessage);
+    socketController.addDisconnectListener(_restartConnection);
+    socketController.addErrorListener(_restartConnection);
+
     _initializeWebRTC();
   }
 
-  void _connectToSignalingServer() {
-    var myuserid = CacheHelper.getData(key: useridKey);
-    var usertoken = CacheHelper.getData(key: access_tokenkey);
-
-    _channel = WebSocketChannel.connect(
-      Uri.parse('wss://naham.tadafuq.ae?user_id=$myuserid&token=$usertoken'),
-    );
-    _channel.stream.listen(_handleSocketMessage, onDone: _handleWebSocketDisconnection, onError: _handleWebSocketError);
-  }
 
   bool isLoading = false;
   bool isPressing = false;
@@ -99,13 +102,8 @@ class WebRTCController extends GetxController {
     peerConnection = await _createPeerConnection();
 
     peerConnection?.onIceCandidate = _handleIceCandidate;
-    peerConnection?.onAddStream =
-        _handleRemoteStream;
+    peerConnection?.onAddStream = _handleRemoteStream;
     peerConnection?.onIceConnectionState = _handleIceConnectionState;
-
-
-    isPressing = false;
-    update();
   }
 
   void _handleIceCandidate(webrtc.RTCIceCandidate candidate) {
@@ -192,32 +190,10 @@ class WebRTCController extends GetxController {
   }
 
 
-  void _handleWebSocketDisconnection() {
-    Fluttertoast.showToast(
-      msg: "WebSocket disconnected!",
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.red,
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
 
-    _sendToServer({'type': 'terminate'});
-    peerConnection?.close();
+
+  void _restartConnection() {
     _initializeWebRTC();
-    Future.delayed(Duration(seconds: 1), _connectToSignalingServer); // Restart connection
-  }
-
-  void _handleWebSocketError(error) {
-    print("WebSocket error: $error");
-    _sendToServer({'type': 'terminate'});
-    Future.delayed(Duration(seconds: 1), _restartConnection);
-  }
-
-  Future<void> _restartConnection() async {
-    await peerConnection?.close();
-    await _initializeWebRTC();
-    _connectToSignalingServer();
   }
 
 
@@ -226,24 +202,24 @@ class WebRTCController extends GetxController {
     print("Data from socket: $message");
     CacheHelper.saveData(key: userprofielkey, value: data["sender_id"]);
 
-    print(data['type']);
-
-    switch (data['type']) {
-      case 'offer':
-        _handleOffer(data);
-        break;
-      case 'answer':
-        _handleAnswer(data);
-        break;
-      case 'candidate':
-        _handleCandidate(data);
-        break;
-      case 'stop':
-        _handleStop();
-        break;
-      case 'terminate':
-        _handleTerminate();
-        break;
+    if (data["screen"] == "single") {
+      switch (data['type']) {
+        case 'offer':
+          _handleOffer(data);
+          break;
+        case 'answer':
+          _handleAnswer(data);
+          break;
+        case 'candidate':
+          _handleCandidate(data);
+          break;
+        case 'stop':
+          _handleStop();
+          break;
+        case 'terminate':
+          _handleTerminate();
+          break;
+      }
     }
   }
 
@@ -318,9 +294,11 @@ class WebRTCController extends GetxController {
     var myuserid = CacheHelper.getData(key: useridKey);
     message["to_user_id"] = "$userid";
     message["sender_id"]=myuserid;
+    message["screen"] = "single";
     print("sending to $userid");
     print("sending from $myuserid");
-    _channel.sink.add(jsonEncode(message));
+    print("messsssssssssssssssage ${message}");
+    socketController.sendToServer(message);
   }
 
   void _handleRemoteStream(webrtc.MediaStream stream) {
@@ -363,9 +341,9 @@ class WebRTCController extends GetxController {
     } else if (state ==
         webrtc.RTCIceConnectionState.RTCIceConnectionStateClosed) {
       var audioTrack = localStream?.getAudioTracks()?.first;
-      isPressing = audioTrack != null ? audioTrack.enabled : false;
+      //isPressing = audioTrack != null ? audioTrack.enabled : false;
       //isLoading = false;
-      update();
+      //update();
     }
   }
 
@@ -385,6 +363,7 @@ class WebRTCController extends GetxController {
     localStream?.dispose();
     remoteStream?.dispose();
     peerConnection?.close();
+    socketController.closeConnection();
     super.onClose();
   }
 }
