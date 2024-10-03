@@ -266,53 +266,40 @@ class WebRTCGroupController extends GetxController {
   }
 
   Future<void> _handleOffer(Map<String, dynamic> data) async {
-
     int senderId = data['sender_id'];
-    print("handle offffffffffffffer sender id ${senderId}");
+    print("handle offer sender id $senderId");
 
-    // Ensure the peer connection exists or create one
-    webrtc.RTCPeerConnection peerConnection =
-        peerConnections[senderId]! /*?? await _createPeerConnection(senderId)*/;
+    try {
+      // Check if the peer connection exists or is closed
+      webrtc.RTCPeerConnection? peerConnection = peerConnections[senderId];
 
-        print("peer connection is ${peerConnection == null}");
+      if (peerConnection == null || peerConnection.signalingState == webrtc.RTCSignalingState.RTCSignalingStateClosed) {
+        // Create a new peer connection if none exists or if the existing one is closed
+        print("Creating new peer connection for user $senderId");
+        peerConnection = await _createPeerConnection(senderId);
+        peerConnections[senderId] = peerConnection;
+      }
 
-    // Set the remote description (offer)
-    final description = webrtc.RTCSessionDescription(data['sdp'], 'offer');
-    await peerConnection.setRemoteDescription(description);
+      // Set the remote description (offer)
+      final description = webrtc.RTCSessionDescription(data['sdp'], 'offer');
+      await peerConnection.setRemoteDescription(description);
 
-    // Create an answer
-    final answer = await peerConnection.createAnswer();
-    await peerConnection.setLocalDescription(answer);
+      // Create an answer
+      final answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
 
-    print("sending answer to ${senderId}");
-    // Send the answer back to the peer who sent the offer
-    _sendToServer({
-      'type': 'answer',
-      'sdp': answer.sdp,
-      'to_user_id': senderId,// Respond to the peer who sent the offer
-    });
+      print("sending answer to $senderId");
 
-
-    // if (peerConnection.signalingState ==
-    //         webrtc.RTCSignalingState.RTCSignalingStateStable ||
-    //     peerConnection.signalingState ==
-    //         webrtc.RTCSignalingState.RTCSignalingStateHaveRemoteOffer) {
-    //   // Set the remote description (offer)
-    //   final description = webrtc.RTCSessionDescription(data['sdp'], 'offer');
-    //   await peerConnection.setRemoteDescription(description);
-    //
-    //   // Create an answer
-    //   final answer = await peerConnection.createAnswer();
-    //   await peerConnection.setLocalDescription(answer);
-    //
-    //   print("answeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeer");
-    //   // Send the answer back to the peer who sent the offer
-    //   _sendToServer({
-    //     'type': 'answer',
-    //     'sdp': answer.sdp,
-    //     'to_user_id': senderId,// Respond to the peer who sent the offer
-    //   });
-    // }
+      // Send the answer back to the peer who sent the offer
+      _sendToServer({
+        'type': 'answer',
+        'sdp': answer.sdp,
+        'to_user_id': senderId, // Respond to the peer who sent the offer
+      });
+    } catch (error) {
+      print("Failed to handle offer: $error");
+      _showToast("Failed to handle offer for user $senderId", Colors.red);
+    }
   }
 
   Future<void> _handleAnswer(Map<String, dynamic> data) async {

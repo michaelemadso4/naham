@@ -12,7 +12,7 @@ class SocketController {
   String? _token;
   Timer? _reconnectTimer;
   int _reconnectAttempts = 0;
-  final int _maxReconnectAttempts = 5;
+  final int _maxReconnectAttempts = 10;
   final Duration _reconnectDelay = Duration(seconds: 1); // Reconnect delay
 
   final List<Function(dynamic message)> _messageListeners = [];
