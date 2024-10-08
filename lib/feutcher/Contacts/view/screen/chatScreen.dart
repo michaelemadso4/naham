@@ -21,7 +21,7 @@ import 'package:naham/feutcher/Contacts/view/widgets/containerChat/containerShee
 import 'package:naham/feutcher/Contacts/view/widgets/edtchat/edtchat.dart';
 import 'package:naham/helper/colors/colorsconstant.dart';
 import 'package:naham/helper/scalesize.dart';
-import 'package:video_player/video_player.dart';
+// import 'package:video_player/video_player.dart';
 import 'package:web_socket_channel/io.dart';
 
 import '../../model/userprofielmodel.dart';
@@ -395,8 +395,8 @@ class ChatScreen extends StatelessWidget {
                                                 ),
                                                 InkWell(
                                                   onTap: () {
-                                                    controllerMessage
-                                                        .PickVideoFromGalary();
+                                                    // controllerMessage
+                                                    //     .PickVideoFromGalary();
                                                   },
                                                   child: Column(
                                                     children: [
@@ -431,8 +431,8 @@ class ChatScreen extends StatelessWidget {
                                                 ),
                                                 InkWell(
                                                   onTap: () {
-                                                    controllerMessage
-                                                        .PickVideoFromCamera();
+                                                    // controllerMessage
+                                                    //     .PickVideoFromCamera();
                                                   },
                                                   child: Column(
                                                     children: [
@@ -499,6 +499,8 @@ class ChatScreen extends StatelessWidget {
                       );
                     }
                   )),
+
+              /*
               Flexible(flex:0,
                 child:  Container(
                 width: width,
@@ -557,6 +559,8 @@ class ChatScreen extends StatelessWidget {
                     }
                 ),
               ),),
+              */
+
               Flexible(
                 flex: 0,
                 child: Container(

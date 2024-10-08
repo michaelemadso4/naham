@@ -149,8 +149,7 @@ class ChatCallController extends GetxController {
     await _initializeWebRTC();
 
     if (localStream == null || localStream!.getTracks().isEmpty) {
-      print("Local stream is null");
-      return;
+      localStream = await _getUserMedia();
     }
 
     final audioTracks = localStream!.getAudioTracks();
@@ -174,15 +173,19 @@ class ChatCallController extends GetxController {
   }
 
   funStopTaking() {
+    peerConnection?.close();
+    localStream?.dispose();
+    //remoteStream?.dispose();
+    peerConnection = null;
 
-    if (localStream != null) {
-      var audioTracks =
-      localStream!.getAudioTracks();
-      if (audioTracks.isNotEmpty) {
-        audioTracks.first.enabled = false; // Disable mic
-
-      }
-    }
+    // if (localStream != null) {
+    //   var audioTracks =
+    //   localStream!.getAudioTracks();
+    //   if (audioTracks.isNotEmpty) {
+    //     audioTracks.first.enabled = false; // Disable mic
+    //
+    //   }
+    // }
     _handleStop();
     _handleTerminate();
 
@@ -228,6 +231,7 @@ class ChatCallController extends GetxController {
     CacheHelper.saveData(key: userprofielkey, value: data["sender_id"]);
 
     print(data['type']);
+    print("UUUUUUUUUUUUUUUU${data["screen"]}");
 
     if(data["screen"] == "chat"){
       switch (data['type']) {
@@ -388,9 +392,9 @@ class ChatCallController extends GetxController {
     funStartTaking();
 
   }
-  void _handleOffer(Map<String, dynamic> data) async {
+  /*void _handleOffer(Map<String, dynamic> data) async {
 
-    if (peerConnection == null) {
+    if (peerConnection == null || peerConnection?.signalingState == webrtc.RTCSignalingState.RTCSignalingStateClosed) {
       await _initializeWebRTC(); // Reinitialize the connection if it's not already available
     }
 
@@ -402,6 +406,34 @@ class ChatCallController extends GetxController {
 
     _sendToServer({'type': 'answer', 'sdp': answer?.sdp});
   }
+*/
+  void _handleOffer(Map<String, dynamic> data) async {
+    // Ensure that the peer connection is ready
+    if (peerConnection == null ||
+        peerConnection?.signalingState == webrtc.RTCSignalingState.RTCSignalingStateClosed) {
+      await _initializeWebRTC();
+    }
+
+    // Check if the state is `have-local-offer`, and rollback if necessary
+    if (peerConnection?.signalingState == webrtc.RTCSignalingState.RTCSignalingStateHaveLocalOffer) {
+      // Rollback to get back to stable state
+      await peerConnection?.setLocalDescription(webrtc.RTCSessionDescription('', 'rollback'));
+    }
+
+    if (peerConnection?.signalingState == webrtc.RTCSignalingState.RTCSignalingStateStable) {
+      final description = webrtc.RTCSessionDescription(data['sdp'], 'offer');
+      await peerConnection?.setRemoteDescription(description);
+
+      final answer = await peerConnection?.createAnswer();
+      await peerConnection?.setLocalDescription(answer!);
+
+      _sendToServer({'type': 'answer', 'sdp': answer?.sdp});
+    } else {
+      print('Invalid signaling state: ${peerConnection?.signalingState}');
+      // Handle error or renegotiation logic
+    }
+  }
+
 
   void _handleAnswer(Map<String, dynamic> data) async {
     final description = webrtc.RTCSessionDescription(data['sdp'], 'answer');

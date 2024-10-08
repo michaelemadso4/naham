@@ -152,7 +152,8 @@ class CallScreen extends StatelessWidget {
                                   builder: (controller) {
                                     return IconButton(
                                       onPressed: () {
-                                        // controller.stopTalking();
+                                        controller.funStopTaking();
+                                        controller.EndCall();
                                         Get.back();
                                       },
                                       icon: Icon(

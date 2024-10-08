@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:naham/feutcher/Contacts/controller/ContactController.dart';
 import 'package:naham/feutcher/Contacts/controller/SendNotificationController/SendNotificatinController.dart';
 import 'package:naham/feutcher/Contacts/model/contactmodel.dart';
+import 'package:naham/feutcher/Contacts/view/screen/CallScreen/videoCall/vidocallScreen.dart';
 import 'package:naham/feutcher/Contacts/view/screen/chatcontactScreen.dart';
 import 'package:naham/feutcher/Contacts/view/widgets/contactContainer.dart';
 import 'package:naham/helper/colors/colorsconstant.dart';
@@ -134,6 +135,18 @@ class ContactsScreen extends StatelessWidget {
                                      },
 
                                      icon: Icon(Icons.messenger,color: Colors.white,),),
+                                   ),
+                                 ),
+                                 Expanded(
+                                   flex: 1,
+                                   child: CircleAvatar(
+                                     backgroundColor: kPrimaryColor,
+                                     child: IconButton(onPressed: (){
+                                       CacheHelper.saveData(key: userprofielkey, value: contactModel.data![index].id);
+                                       Get.to(() => VideoCallScreen());
+                                     },
+
+                                     icon: Icon(Icons.missed_video_call,color: Colors.white,),),
                                    ),
                                  )
                                ],
