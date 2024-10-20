@@ -58,6 +58,7 @@ dependencies:
   firebase_messaging: ^15.1.2
   smooth_page_indicator: ^1.2.0+3
   audioplayers: ^6.1.0
+  qr_flutter: ^4.1.0
   
 
 dev_dependencies:

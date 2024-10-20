@@ -21,6 +21,7 @@ import 'package:naham/feutcher/Contacts/view/widgets/containerChat/containerShee
 import 'package:naham/feutcher/Contacts/view/widgets/edtchat/edtchat.dart';
 import 'package:naham/helper/colors/colorsconstant.dart';
 import 'package:naham/helper/scalesize.dart';
+
 // import 'package:video_player/video_player.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -150,7 +151,8 @@ class ChatScreen extends StatelessWidget {
                               children: [
                                 IconButton(
                                     onPressed: () {
-                                      Get.to(()=> CallScreen(),
+                                      Get.to(
+                                        () => CallScreen(),
                                       );
                                       Get.delete<ChatMainController>();
                                     },
@@ -159,9 +161,7 @@ class ChatScreen extends StatelessWidget {
                                       color: Colors.black,
                                     )),
                                 IconButton(
-                                    onPressed: () {
-
-                                    },
+                                    onPressed: () {},
                                     icon: SvgPicture.asset(
                                       width: width * 0.07,
                                       'assets/svg/camera.svg', // Ensure you have this SVG file in your assets directory
@@ -178,327 +178,370 @@ class ChatScreen extends StatelessWidget {
                   child: GetBuilder(
                       init: ChatMainController(),
                       builder: (controllerMessage) {
-                      return Container(
-                        margin: EdgeInsets.all(20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              margin: EdgeInsets.only(right: 10),
-                              child: CircleAvatar(
-                                radius: 35,
-                                backgroundColor: kTheryColor,
-                                child: InkWell(
-                                  onTap: ()async {
-
-                                    await controllerMessage.extractCoordinates();
-                                    showModalBottomSheet(context: context, builder: (context){
-
-                                      return Container(
-                                        padding: EdgeInsets
-                                            .all(20),
-                                        decoration: BoxDecoration(
-                                            color: kPrimaryColor,
-                                            borderRadius: BorderRadius
-                                                .only(
-                                                topRight: Radius
-                                                    .circular(
-                                                    25),
-                                                topLeft: Radius
-                                                    .circular(
-                                                    25))
-                                        ),
-                                        height: height *
-                                            0.4,
-                                        child: Column(
-                                          children: [
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(20)
-                                            ),
-                                          height: height*0.2,
-                                          child:ClipRRect(
-                                      borderRadius: BorderRadius.circular(20),
-                                            child: GoogleMap(
-                                              initialCameraPosition:CameraPosition(
-                                                target: controllerMessage.xposition,
-                                                zoom: 14.0,
-                                              ),
-                                              markers: {
-                                                Marker(
-                                                  markerId: MarkerId('position'),
-                                                  position:controllerMessage.xposition,
-                                                )
-                                              },
-                                            ),
-                                          ) ,
-                                        ),
-                                            SizedBox(height: 20,),
-                                            ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                  foregroundColor: Colors.black,
-                                                  backgroundColor:  Colors.white,
-                                                  minimumSize: Size(double.infinity, 45),
-                                                  padding: EdgeInsets.symmetric(horizontal: 16,vertical: 16),
-                                                  shape: const RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.all(Radius.circular(50)),
+                        return Container(
+                          margin: EdgeInsets.all(20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(right: 10),
+                                child: CircleAvatar(
+                                  radius: 35,
+                                  backgroundColor: kTheryColor,
+                                  child: InkWell(
+                                    onTap: () async {
+                                      await controllerMessage
+                                          .extractCoordinates();
+                                      showModalBottomSheet(
+                                          context: context,
+                                          builder: (context) {
+                                            return Container(
+                                              padding: EdgeInsets.all(20),
+                                              decoration: BoxDecoration(
+                                                  color: kPrimaryColor,
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                          topRight:
+                                                              Radius.circular(
+                                                                  25),
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  25))),
+                                              height: height * 0.4,
+                                              child: Column(
+                                                children: [
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20)),
+                                                    height: height * 0.2,
+                                                    child: ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                      child: GoogleMap(
+                                                        initialCameraPosition:
+                                                            CameraPosition(
+                                                          target:
+                                                              controllerMessage
+                                                                  .xposition,
+                                                          zoom: 14.0,
+                                                        ),
+                                                        markers: {
+                                                          Marker(
+                                                            markerId: MarkerId(
+                                                                'position'),
+                                                            position:
+                                                                controllerMessage
+                                                                    .xposition,
+                                                          )
+                                                        },
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
-                                                onPressed: (){
-                                              controllerMessage.SendLocatio(context,controllerMessage.userid
-                                                .toString() );
-                                              }, child: Text("Sent Current Location",
-                                              textScaleFactor:
-                                              ScaleSize.textScaleFactor(
-                                                  context),
-                                            ))
-                                          ],
-                                        ),
-                                      );
-                                    });
-                                  },
-                                  child: SvgPicture.asset(
-                                    width: width * 0.1,
-                                    'assets/svg/ep_location.svg', // Ensure you have this SVG file in your assets directory
+                                                  SizedBox(
+                                                    height: 20,
+                                                  ),
+                                                  ElevatedButton(
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                        foregroundColor:
+                                                            Colors.black,
+                                                        backgroundColor:
+                                                            Colors.white,
+                                                        minimumSize: Size(
+                                                            double.infinity,
+                                                            45),
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                                horizontal: 16,
+                                                                vertical: 16),
+                                                        shape:
+                                                            const RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          50)),
+                                                        ),
+                                                      ),
+                                                      onPressed: () {
+                                                        controllerMessage
+                                                            .SendLocatio(
+                                                                context,
+                                                                controllerMessage
+                                                                    .userid
+                                                                    .toString());
+                                                      },
+                                                      child: Text(
+                                                        "Sent Current Location",
+                                                        textScaleFactor:
+                                                            ScaleSize
+                                                                .textScaleFactor(
+                                                                    context),
+                                                      ))
+                                                ],
+                                              ),
+                                            );
+                                          });
+                                    },
+                                    child: SvgPicture.asset(
+                                      width: width * 0.1,
+                                      'assets/svg/ep_location.svg', // Ensure you have this SVG file in your assets directory
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(right: 10),
-                              child: CircleAvatar(
-                                radius: 35,
-                                backgroundColor: kTheryColor,
-                                child: InkWell(
-                                    onTap: () {
-                                      controllerMessage.isRecording
-                                          ? controllerMessage.stopRecording()
-                                          : controllerMessage.startRecording();
-                                    },
-                                    child: Icon(
-                                      controllerMessage.isRecording ?Icons.pause:Icons.keyboard_voice_rounded,
-                                      size: 40,
-                                    )),
+                              Container(
+                                margin: EdgeInsets.only(right: 10),
+                                child: CircleAvatar(
+                                  radius: 35,
+                                  backgroundColor: kTheryColor,
+                                  child: InkWell(
+                                      onTap: () {
+                                        controllerMessage.isRecording
+                                            ? controllerMessage.stopRecording()
+                                            : controllerMessage
+                                                .startRecording();
+                                      },
+                                      child: Icon(
+                                        controllerMessage.isRecording
+                                            ? Icons.pause
+                                            : Icons.keyboard_voice_rounded,
+                                        size: 40,
+                                      )),
+                                ),
                               ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(right: 10),
-                              child: CircleAvatar(
+                              Container(
+                                margin: EdgeInsets.only(right: 10),
+                                child: CircleAvatar(
+                                  radius: 35,
+                                  backgroundColor: kTheryColor,
+                                  child: InkWell(
+                                    onTap: () {
+                                      showModalBottomSheet(
+                                          context: context,
+                                          builder: (context) {
+                                            return Container(
+                                              padding: EdgeInsets.all(20),
+                                              decoration: BoxDecoration(
+                                                  color: kPrimaryColor,
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                          topRight:
+                                                              Radius.circular(
+                                                                  25),
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  25))),
+                                              height: height * 0.2,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                children: [
+                                                  InkWell(
+                                                    onTap: () {
+                                                      controllerMessage
+                                                          .PickImagefromCamera();
+                                                    },
+                                                    child: Column(
+                                                      children: [
+                                                        Container(
+                                                            decoration: BoxDecoration(
+                                                                color: Colors
+                                                                    .white
+                                                                    .withOpacity(
+                                                                        0.5),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            20)),
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    20),
+                                                            child: Icon(
+                                                              Icons.camera_alt,
+                                                            )),
+                                                        Text(
+                                                          'Camera',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .white
+                                                                  .withOpacity(
+                                                                      0.5),
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w900),
+                                                          textScaleFactor:
+                                                              ScaleSize
+                                                                  .textScaleFactor(
+                                                                      context),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  InkWell(
+                                                    onTap: () {
+                                                      controllerMessage
+                                                          .PickImagefromGalary();
+                                                    },
+                                                    child: Column(
+                                                      children: [
+                                                        Container(
+                                                            decoration: BoxDecoration(
+                                                                color: Colors
+                                                                    .white
+                                                                    .withOpacity(
+                                                                        0.5),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            20)),
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    20),
+                                                            child: Icon(
+                                                              Icons.photo,
+                                                            )),
+                                                        Text(
+                                                          'Gallery',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .white
+                                                                  .withOpacity(
+                                                                      0.5),
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w900),
+                                                          textScaleFactor:
+                                                              ScaleSize
+                                                                  .textScaleFactor(
+                                                                      context),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  InkWell(
+                                                    onTap: () {
+                                                      // controllerMessage
+                                                      //     .PickVideoFromGalary();
+                                                    },
+                                                    child: Column(
+                                                      children: [
+                                                        Container(
+                                                            decoration: BoxDecoration(
+                                                                color: Colors
+                                                                    .white
+                                                                    .withOpacity(
+                                                                        0.5),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            20)),
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    20),
+                                                            child: Icon(
+                                                              Icons
+                                                                  .video_collection,
+                                                            )),
+                                                        Text(
+                                                          'Video\nGallery',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .white
+                                                                  .withOpacity(
+                                                                      0.5),
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w900),
+                                                          textScaleFactor:
+                                                              ScaleSize
+                                                                  .textScaleFactor(
+                                                                      context),
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  InkWell(
+                                                    onTap: () {
+                                                      // controllerMessage
+                                                      //     .PickVideoFromCamera();
+                                                    },
+                                                    child: Column(
+                                                      children: [
+                                                        Container(
+                                                            decoration: BoxDecoration(
+                                                                color: Colors
+                                                                    .white
+                                                                    .withOpacity(
+                                                                        0.5),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            20)),
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    20),
+                                                            child: Icon(
+                                                              Icons
+                                                                  .video_camera_back,
+                                                            )),
+                                                        Text(
+                                                          'Camera\nVideo',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .white
+                                                                  .withOpacity(
+                                                                      0.5),
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w900),
+                                                          textScaleFactor:
+                                                              ScaleSize
+                                                                  .textScaleFactor(
+                                                                      context),
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          });
+                                    },
+                                    child: SvgPicture.asset(
+                                      width: width * 0.1,
+
+                                      'assets/svg/camera.svg', // Ensure you have this SVG file in your assets directory
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              CircleAvatar(
                                 radius: 35,
                                 backgroundColor: kTheryColor,
                                 child: InkWell(
                                   onTap: () {
-                                    showModalBottomSheet(
-                                        context: context,
-                                        builder: (context) {
-                                          return Container(
-                                            padding: EdgeInsets
-                                                .all(20),
-                                            decoration: BoxDecoration(
-                                                color: kPrimaryColor,
-                                                borderRadius: BorderRadius
-                                                    .only(
-                                                    topRight: Radius
-                                                        .circular(
-                                                        25),
-                                                    topLeft: Radius
-                                                        .circular(
-                                                        25))
-                                            ),
-                                            height: height *
-                                                0.2,
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment
-                                                  .spaceAround,
-                                              children: [
-                                                InkWell(
-                                                  onTap: () {
-                                                    controllerMessage
-                                                        .PickImagefromCamera();
-                                                  },
-                                                  child: Column(
-                                                    children: [
-                                                      Container(
-                                                          decoration: BoxDecoration(
-                                                              color: Colors
-                                                                  .white
-                                                                  .withOpacity(
-                                                                  0.5),
-                                                              borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                  20)),
-                                                          padding:
-                                                          EdgeInsets
-                                                              .all(
-                                                              20),
-                                                          child: Icon(
-                                                            Icons
-                                                                .camera_alt,
-                                                          )),
-                                                      Text(
-                                                        'Camera',
-                                                        style: TextStyle(
-                                                            color: Colors
-                                                                .white
-                                                                .withOpacity(
-                                                                0.5),
-                                                            fontWeight: FontWeight
-                                                                .w900),
-                                                        textScaleFactor:
-                                                        ScaleSize
-                                                            .textScaleFactor(
-                                                            context),),
-                                                    ],
-                                                  ),
-                                                ),
-                                                InkWell(
-                                                  onTap: () {
-                                                    controllerMessage
-                                                        .PickImagefromGalary();
-                                                  },
-                                                  child: Column(
-                                                    children: [
-                                                      Container(
-                                                          decoration: BoxDecoration(
-                                                              color: Colors
-                                                                  .white
-                                                                  .withOpacity(
-                                                                  0.5),
-                                                              borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                  20)),
-                                                          padding:
-                                                          EdgeInsets
-                                                              .all(
-                                                              20),
-                                                          child: Icon(
-                                                            Icons
-                                                                .photo,
-                                                          )),
-                                                      Text(
-                                                        'Gallery',
-                                                        style: TextStyle(
-                                                            color: Colors
-                                                                .white
-                                                                .withOpacity(
-                                                                0.5),
-                                                            fontWeight: FontWeight
-                                                                .w900),
-                                                        textScaleFactor:
-                                                        ScaleSize
-                                                            .textScaleFactor(
-                                                            context),),
-                                                    ],
-                                                  ),
-                                                ),
-                                                InkWell(
-                                                  onTap: () {
-                                                    // controllerMessage
-                                                    //     .PickVideoFromGalary();
-                                                  },
-                                                  child: Column(
-                                                    children: [
-                                                      Container(
-                                                          decoration: BoxDecoration(
-                                                              color: Colors
-                                                                  .white
-                                                                  .withOpacity(
-                                                                  0.5),
-                                                              borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                  20)),
-                                                          padding:
-                                                          EdgeInsets.all(
-                                                              20),
-                                                          child: Icon(
-                                                            Icons
-                                                                .video_collection,
-                                                          )),
-                                                      Text('Video\nGallery',style: TextStyle(color:  Colors
-                                                          .white
-                                                          .withOpacity(
-                                                          0.5),fontWeight: FontWeight.w900), textScaleFactor:
-                                                      ScaleSize
-                                                          .textScaleFactor(
-                                                          context),
-                                                        textAlign: TextAlign.center,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                InkWell(
-                                                  onTap: () {
-                                                    // controllerMessage
-                                                    //     .PickVideoFromCamera();
-                                                  },
-                                                  child: Column(
-                                                    children: [
-                                                      Container(
-                                                          decoration: BoxDecoration(
-                                                              color: Colors
-                                                                  .white
-                                                                  .withOpacity(
-                                                                  0.5),
-                                                              borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                  20)),
-                                                          padding:
-                                                          EdgeInsets.all(
-                                                              20),
-                                                          child: Icon(
-                                                            Icons
-                                                                .video_camera_back,
-                                                          )),
-                                                      Text('Camera\nVideo',style: TextStyle(color:  Colors
-                                                          .white
-                                                          .withOpacity(
-                                                          0.5),fontWeight: FontWeight.w900), textScaleFactor:
-                                                      ScaleSize
-                                                          .textScaleFactor(
-                                                          context),
-                                                        textAlign: TextAlign.center,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        });
+                                    controllerMessage.PickfileFromGalary();
                                   },
                                   child: SvgPicture.asset(
                                     width: width * 0.1,
 
-                                    'assets/svg/camera.svg', // Ensure you have this SVG file in your assets directory
+                                    'assets/svg/ci_file-add.svg', // Ensure you have this SVG file in your assets directory
                                   ),
                                 ),
                               ),
-                            ),
-
-                            CircleAvatar(
-                              radius: 35,
-                              backgroundColor: kTheryColor,
-                              child: InkWell(
-                                onTap: () {
-                                  controllerMessage
-                                      .PickfileFromGalary();
-                                },
-                                child: SvgPicture.asset(
-                                  width: width * 0.1,
-
-                                  'assets/svg/ci_file-add.svg', // Ensure you have this SVG file in your assets directory
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                  )),
+                            ],
+                          ),
+                        );
+                      })),
 
               /*
               Flexible(flex:0,
@@ -565,111 +608,58 @@ class ChatScreen extends StatelessWidget {
                 flex: 0,
                 child: Container(
                   width: width,
-
                   child: GetBuilder(
                       init: ChatMainController(),
                       builder: (controller) {
                         return controller.myfile == null
-                            ? Container():Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  Image.file(
-                                    controller.myfile!,
-                                    width: 100,
-                                    height: 100,
-                                  ),
-                                  Positioned(
-                                    top: -20,
-                                    right: -20,
-                                    child: CircleAvatar(
-                                      backgroundColor: Colors.red,
-                                      child: IconButton(
-                                        icon: Icon(
-                                          Icons.clear,
-                                          color: Colors.white,
+                            ? Container()
+                            : Container(
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Stack(
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        Image.file(
+                                          controller.myfile!,
+                                          width: 100,
+                                          height: 100,
                                         ),
-                                        onPressed: () {
-                                          controller.ClearPhoto();
-                                        },
-                                      ),
+                                        Positioned(
+                                          top: -20,
+                                          right: -20,
+                                          child: CircleAvatar(
+                                            backgroundColor: Colors.red,
+                                            child: IconButton(
+                                              icon: Icon(
+                                                Icons.clear,
+                                                color: Colors.white,
+                                              ),
+                                              onPressed: () {
+                                                controller.ClearPhoto();
+                                              },
+                                            ),
+                                          ),
+                                        )
+                                      ],
                                     ),
-                                  )
-                                ],
-                              ),
-                              InkWell(
-                                borderRadius:
-                                BorderRadius.circular(100),
-                                onTap: () {
-                                  controller.SendPhoto(context,controller.userid);
-                                },
-                                child: Icon(
-                                  Icons.send,
-                                  color: Colors.white,
-                                  // size: 40,
+                                    InkWell(
+                                      borderRadius: BorderRadius.circular(100),
+                                      onTap: () {
+                                        controller.SendPhoto(
+                                            context, controller.userid);
+                                      },
+                                      child: Icon(
+                                        Icons.send,
+                                        color: Colors.white,
+                                        // size: 40,
+                                      ),
+                                    )
+                                  ],
                                 ),
-                              )
-                            ],
-                          ),
-                        );
-                      }
-                  ),
-                ),
-              ),
-              Flexible(
-                flex: 0,
-                child: Container(
-                  width: width,
-                  child:  GetBuilder(
-                      init: ChatMainController(),
-                      builder: (controllerrecord) {
-                        return controllerrecord.audioPath != ''
-                            ? Row(
-                          children: [
-                            Expanded(
-                                child: IconButton(
-                                  icon: Icon(Icons.clear),
-                                  onPressed: () {
-                                    controllerrecord.ClearRecorder();
-                                  },
-                                )),
-                            Expanded(
-                                child: Slider(
-                                  value: controllerrecord.currentPosition,
-                                  max: controllerrecord.totalDuration,
-                                  onChanged: (value) {
-                                    controllerrecord.onChnagerecordr(value);
-                                    controllerrecord.audioPlayer.seek(
-                                        Duration(seconds: value.toInt()));
-                                  },
-                                )),
-                            Expanded(
-                                child: IconButton(
-                                  icon: Icon((Icons.play_circle)),
-                                  onPressed: () {
-                                    controllerrecord.playRecorder();
-                                  },
-                                )),
-                            controllerrecord.RecordSended
-                                ? Expanded(
-                                child: CircularProgressIndicator())
-                                : Expanded(
-                                child: IconButton(
-                                    onPressed: () {
-                                      controllerrecord.SendRecord(context,controllerrecord.userid);
-                                    },
-                                    icon: Icon(
-                                      Icons.send,
-                                      color: Colors.white,
-                                    ))),
-                          ],
-                        )
-                            : Container();
+                              );
                       }),
-
                 ),
               ),
               Flexible(
@@ -678,38 +668,95 @@ class ChatScreen extends StatelessWidget {
                   width: width,
                   child: GetBuilder(
                       init: ChatMainController(),
-                      builder: (controller){
+                      builder: (controllerrecord) {
+                        return controllerrecord.audioPath != ''
+                            ? Row(
+                                children: [
+                                  Expanded(
+                                      child: IconButton(
+                                    icon: Icon(Icons.clear),
+                                    onPressed: () {
+                                      controllerrecord.ClearRecorder();
+                                    },
+                                  )),
+                                  Expanded(
+                                      child: Slider(
+                                    value: controllerrecord.currentPosition,
+                                    max: controllerrecord.totalDuration,
+                                    onChanged: (value) {
+                                      controllerrecord.onChnagerecordr(value);
+                                      controllerrecord.audioPlayer.seek(
+                                          Duration(seconds: value.toInt()));
+                                    },
+                                  )),
+                                  Expanded(
+                                      child: IconButton(
+                                    icon: Icon((Icons.play_circle)),
+                                    onPressed: () {
+                                      controllerrecord.playRecorder();
+                                    },
+                                  )),
+                                  controllerrecord.RecordSended
+                                      ? Expanded(
+                                          child: CircularProgressIndicator())
+                                      : Expanded(
+                                          child: IconButton(
+                                              onPressed: () {
+                                                controllerrecord.SendRecord(
+                                                    context,
+                                                    controllerrecord.userid);
+                                              },
+                                              icon: Icon(
+                                                Icons.send,
+                                                color: Colors.white,
+                                              ))),
+                                ],
+                              )
+                            : Container();
+                      }),
+                ),
+              ),
+              Flexible(
+                flex: 0,
+                child: Container(
+                  width: width,
+                  child: GetBuilder(
+                      init: ChatMainController(),
+                      builder: (controller) {
                         return controller.filePath == ""
-                            ? Container():Container(
-                          child: Row(
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                  child: IconButton(
-                                      onPressed: () {},
-                                      icon: Icon(
-                                        Icons.clear,
-                                        color: Colors.red,
-                                      ))),
-                              Expanded(
-                                  child: Text(
-                                      'Selected file: ${controller.filePath}')),
-                              controller.FileSendded? Expanded(child: CircularProgressIndicator()):Expanded(
-                                  child: IconButton(
-                                      onPressed: () {
-                                        controller.SendFile(context,controller.userid);
-                                      },
-                                      icon: Icon(
-                                        Icons.send,
-                                        color: Colors.white,
-                                      ))),
-                            ],
-                          ),
-                        );
-                      }
-                  ),
-
+                            ? Container()
+                            : Container(
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                        child: IconButton(
+                                            onPressed: () {},
+                                            icon: Icon(
+                                              Icons.clear,
+                                              color: Colors.red,
+                                            ))),
+                                    Expanded(
+                                        child: Text(
+                                            'Selected file: ${controller.filePath}')),
+                                    controller.FileSendded
+                                        ? Expanded(
+                                            child: CircularProgressIndicator())
+                                        : Expanded(
+                                            child: IconButton(
+                                                onPressed: () {
+                                                  controller.SendFile(context,
+                                                      controller.userid);
+                                                },
+                                                icon: Icon(
+                                                  Icons.send,
+                                                  color: Colors.white,
+                                                ))),
+                                  ],
+                                ),
+                              );
+                      }),
                 ),
               ),
               Flexible(
@@ -742,9 +789,14 @@ class ChatScreen extends StatelessWidget {
                                                     controller.messages.length,
                                                 reverse: true,
                                                 itemBuilder: (context, index) {
-                                                  return Column(
-                                                    crossAxisAlignment:
-                                                        controller
+                                                  return ChatOperator(
+                                                    type: controller
+                                                        .messages[index]
+                                                        .type!,
+                                                    message: Container(
+                                                      width: double.infinity,
+                                                      child: Column(
+                                                        crossAxisAlignment: controller
                                                                     .messages[
                                                                         index]
                                                                     .senderId ==
@@ -754,25 +806,20 @@ class ChatScreen extends StatelessWidget {
                                                                 .start
                                                             : CrossAxisAlignment
                                                                 .end,
-                                                    children: [
-                                                      CircleAvatar(
-                                                        backgroundColor: controller
-                                                                    .messages[
-                                                                        index]
-                                                                    .senderId ==
-                                                                controller
-                                                                    .userid
-                                                            ? kPrimaryColor
-                                                            : kTheryColor,
-                                                        child:
-                                                            Icon(Icons.person),
-                                                      ),
-
-                                                      // Text("${controller.messages[index].type}"),
-                                                      ChatOperator(
-                                                          type: controller.messages[index].type == null?"message":controller.messages[index].type!,
-                                                          message:
-                                                              ContainerChatMessage(
+                                                        children: [
+                                                          CircleAvatar(
+                                                            backgroundColor: controller
+                                                                        .messages[
+                                                                            index]
+                                                                        .senderId ==
+                                                                    controller
+                                                                        .userid
+                                                                ? kPrimaryColor
+                                                                : kTheryColor,
+                                                            child: Icon(
+                                                                Icons.person),
+                                                          ),
+                                                          ContainerChatMessage(
                                                               isSender: controller
                                                                       .messages[
                                                                           index]
@@ -790,107 +837,407 @@ class ChatScreen extends StatelessWidget {
                                                                           index]
                                                                       .message ??
                                                                   ''),
-                                                          image:
-                                                              ContainerChatImage(
-                                                            imgSrc: controller
-                                                                .messages[index]
-                                                                .path??"",
-                                                            onTap: () {
-                                                              controller.openFile(
-                                                                  controller
-                                                                      .messages[
-                                                                          index]
-                                                                      .path!);
-                                                            },
-                                                          ),
-                                                          sheet:
-                                                              ContainerSheetView(
-                                                            onTap: () {
-                                                              controller.openFile(
-                                                                  controller
-                                                                      .messages[
-                                                                          index]
-                                                                      .path!);
-                                                            },
-                                                            pathname: controller
-                                                                .messages[index]
-                                                                .path??"",
-                                                          ),
-                                                          location:
-                                                              ContainerLocationChat(
-                                                            mapUrl: controller
-                                                                    .messages[
-                                                                        index]
-                                                                    .locationLink ??
-                                                                "",
-                                                            onTap: () {
-                                                              controller.openFile(
-                                                                  controller
-                                                                      .messages[
-                                                                          index]
-                                                                      .locationLink);
-                                                            },
-                                                          ),
-                                                          video:
-                                                              ContainerVideoChat(
-                                                              path: controller
-                                                                      .messages[index]
-                                                                      .path??
-                                                                  ""),
-                                                        voice: ContainerVoiceChat(widget: Expanded(
-                                                          child: IconButton(
-                                                              onPressed:
-                                                                  () {
-                                                                controller.boolList[index]
-                                                                    ? controller.StopReecoreder(controller
-                                                                    .messages[index]
-                                                                    .path??"",
-                                                                    index)
-                                                                    : controller.playRecorderReciver(controller
-                                                                    .messages[index]
-                                                                    .path??"", index);
-                                                              },
-                                                              icon: controller.boolList[
-                                                              index]
-                                                                  ? Icon(Icons
-                                                                  .pause)
-                                                                  : Icon(
-                                                                  Icons.play_arrow_sharp)),
-                                                        ),
+                                                          Container(
+                                                            margin: EdgeInsets
+                                                                .only(
+                                                              left: controller
+                                                                          .messages[
+                                                                              index]
+                                                                          .senderId ==
+                                                                      controller
+                                                                          .userid
+                                                                  ? 30
+                                                                  : 0,
+                                                              right: controller
+                                                                          .messages[
+                                                                              index]
+                                                                          .senderId ==
+                                                                      controller
+                                                                          .userid
+                                                                  ? 0
+                                                                  : 30,
                                                             ),
+                                                            child: Text(
+                                                              controller
+                                                                      .messages[
+                                                                          index]
+                                                                      .time ??
+                                                                  '',
+                                                              textScaleFactor:
+                                                                  ScaleSize
+                                                                      .textScaleFactor(
+                                                                          context),
+                                                            ),
+                                                          )
+                                                        ],
                                                       ),
-                                                      Container(
-                                                        margin: EdgeInsets.only(
-                                                          left: controller
-                                                                      .messages[
-                                                                          index]
-                                                                      .senderId ==
-                                                                  controller
-                                                                      .userid
-                                                              ? 30
-                                                              : 0,
-                                                          right: controller
-                                                                      .messages[
-                                                                          index]
-                                                                      .senderId ==
-                                                                  controller
-                                                                      .userid
-                                                              ? 0
-                                                              : 30,
-                                                        ),
-                                                        child: Text(
+                                                    ),
+                                                    image: Column(
+                                                      crossAxisAlignment: controller
+                                                          .messages[
+                                                      index]
+                                                          .senderId ==
                                                           controller
+                                                              .userid
+                                                          ? CrossAxisAlignment
+                                                          .start
+                                                          : CrossAxisAlignment
+                                                          .end,
+                                                      children: [
+                                                        CircleAvatar(
+                                                          backgroundColor: controller
+                                                              .messages[
+                                                          index]
+                                                              .senderId ==
+                                                              controller
+                                                                  .userid
+                                                              ? kPrimaryColor
+                                                              : kTheryColor,
+                                                          child: Icon(
+                                                              Icons.person),
+                                                        ),
+                                                        ContainerChatImage(
+                                                          imgSrc: controller
                                                                   .messages[
                                                                       index]
-                                                                  .time ??
-                                                              '',
-                                                          textScaleFactor:
-                                                              ScaleSize
-                                                                  .textScaleFactor(
-                                                                      context),
+                                                                  .path ??
+                                                              "",
+                                                          onTap: () {
+                                                            controller.openFile(
+                                                                controller
+                                                                    .messages[
+                                                                        index]
+                                                                    .path!);
+                                                          },
                                                         ),
-                                                      )
-                                                    ],
+                                                        Container(
+                                                          margin: EdgeInsets
+                                                              .only(
+                                                            left: controller
+                                                                .messages[
+                                                            index]
+                                                                .senderId ==
+                                                                controller
+                                                                    .userid
+                                                                ? 30
+                                                                : 0,
+                                                            right: controller
+                                                                .messages[
+                                                            index]
+                                                                .senderId ==
+                                                                controller
+                                                                    .userid
+                                                                ? 0
+                                                                : 30,
+                                                          ),
+                                                          child: Text(
+                                                            controller
+                                                                .messages[
+                                                            index]
+                                                                .time ??
+                                                                '',
+                                                            textScaleFactor:
+                                                            ScaleSize
+                                                                .textScaleFactor(
+                                                                context),
+                                                          ),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    sheet:
+                                                        Column(
+                                                          crossAxisAlignment: controller
+                                                              .messages[
+                                                          index]
+                                                              .senderId ==
+                                                              controller
+                                                                  .userid
+                                                              ? CrossAxisAlignment
+                                                              .start
+                                                              : CrossAxisAlignment
+                                                              .end,
+                                                          children: [
+                                                            CircleAvatar(
+                                                              backgroundColor: controller
+                                                                  .messages[
+                                                              index]
+                                                                  .senderId ==
+                                                                  controller
+                                                                      .userid
+                                                                  ? kPrimaryColor
+                                                                  : kTheryColor,
+                                                              child: Icon(
+                                                                  Icons.person),
+                                                            ),
+                                                            ContainerSheetView(
+                                                                                                                      onTap: () {
+                                                            controller.openFile(
+                                                                controller
+                                                                    .messages[
+                                                                        index]
+                                                                    .path!);
+                                                                                                                      },
+                                                                                                                      pathname: controller
+                                                                  .messages[
+                                                                      index]
+                                                                  .path ??
+                                                              "",
+                                                                                                                    ),
+                                                            Container(
+                                                              margin: EdgeInsets
+                                                                  .only(
+                                                                left: controller
+                                                                    .messages[
+                                                                index]
+                                                                    .senderId ==
+                                                                    controller
+                                                                        .userid
+                                                                    ? 30
+                                                                    : 0,
+                                                                right: controller
+                                                                    .messages[
+                                                                index]
+                                                                    .senderId ==
+                                                                    controller
+                                                                        .userid
+                                                                    ? 0
+                                                                    : 30,
+                                                              ),
+                                                              child: Text(
+                                                                controller
+                                                                    .messages[
+                                                                index]
+                                                                    .time ??
+                                                                    '',
+                                                                textScaleFactor:
+                                                                ScaleSize
+                                                                    .textScaleFactor(
+                                                                    context),
+                                                              ),
+                                                            )
+                                                          ],
+                                                        ),
+                                                    location:
+                                                        Column(
+                                                          crossAxisAlignment: controller
+                                                              .messages[
+                                                          index]
+                                                              .senderId ==
+                                                              controller
+                                                                  .userid
+                                                              ? CrossAxisAlignment
+                                                              .start
+                                                              : CrossAxisAlignment
+                                                              .end,
+                                                          children: [
+                                                            CircleAvatar(
+                                                              backgroundColor: controller
+                                                                  .messages[
+                                                              index]
+                                                                  .senderId ==
+                                                                  controller
+                                                                      .userid
+                                                                  ? kPrimaryColor
+                                                                  : kTheryColor,
+                                                              child: Icon(
+                                                                  Icons.person),
+                                                            ),
+
+                                                            ContainerLocationChat(
+                                                                                                                      mapUrl: controller
+                                                                  .messages[
+                                                                      index]
+                                                                  .locationLink ??
+                                                              "",
+                                                                                                                      onTap: () {
+                                                            controller.openFile(
+                                                                controller
+                                                                    .messages[
+                                                                        index]
+                                                                    .locationLink);
+                                                                                                                      },
+                                                                                                                    ),
+                                                            Container(
+                                                              margin: EdgeInsets
+                                                                  .only(
+                                                                left: controller
+                                                                    .messages[
+                                                                index]
+                                                                    .senderId ==
+                                                                    controller
+                                                                        .userid
+                                                                    ? 30
+                                                                    : 0,
+                                                                right: controller
+                                                                    .messages[
+                                                                index]
+                                                                    .senderId ==
+                                                                    controller
+                                                                        .userid
+                                                                    ? 0
+                                                                    : 30,
+                                                              ),
+                                                              child: Text(
+                                                                controller
+                                                                    .messages[
+                                                                index]
+                                                                    .time ??
+                                                                    '',
+                                                                textScaleFactor:
+                                                                ScaleSize
+                                                                    .textScaleFactor(
+                                                                    context),
+                                                              ),
+                                                            )
+                                                          ],
+                                                        ),
+                                                    video: Column(
+                                                      crossAxisAlignment: controller
+                                                          .messages[
+                                                      index]
+                                                          .senderId ==
+                                                          controller
+                                                              .userid
+                                                          ? CrossAxisAlignment
+                                                          .start
+                                                          : CrossAxisAlignment
+                                                          .end,
+                                                      children: [
+                                                        CircleAvatar(
+                                                          backgroundColor: controller
+                                                              .messages[
+                                                          index]
+                                                              .senderId ==
+                                                              controller
+                                                                  .userid
+                                                              ? kPrimaryColor
+                                                              : kTheryColor,
+                                                          child: Icon(
+                                                              Icons.person),
+                                                        ),
+                                                        ContainerVideoChat(
+                                                            path: controller
+                                                                    .messages[
+                                                                        index]
+                                                                    .path ??
+                                                                ""),
+                                                        Container(
+                                                          margin: EdgeInsets
+                                                              .only(
+                                                            left: controller
+                                                                .messages[
+                                                            index]
+                                                                .senderId ==
+                                                                controller
+                                                                    .userid
+                                                                ? 30
+                                                                : 0,
+                                                            right: controller
+                                                                .messages[
+                                                            index]
+                                                                .senderId ==
+                                                                controller
+                                                                    .userid
+                                                                ? 0
+                                                                : 30,
+                                                          ),
+                                                          child: Text(
+                                                            controller
+                                                                .messages[
+                                                            index]
+                                                                .time ??
+                                                                '',
+                                                            textScaleFactor:
+                                                            ScaleSize
+                                                                .textScaleFactor(
+                                                                context),
+                                                          ),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    voice:
+                                                        Column(
+                                                          crossAxisAlignment: controller
+                                                              .messages[
+                                                          index]
+                                                              .senderId ==
+                                                              controller
+                                                                  .userid
+                                                              ? CrossAxisAlignment
+                                                              .start
+                                                              : CrossAxisAlignment
+                                                              .end,
+                                                          children: [
+                                                            CircleAvatar(
+                                                              backgroundColor: controller
+                                                                  .messages[
+                                                              index]
+                                                                  .senderId ==
+                                                                  controller
+                                                                      .userid
+                                                                  ? kPrimaryColor
+                                                                  : kTheryColor,
+                                                              child: Icon(
+                                                                  Icons.person),
+                                                            ),
+                                                            ContainerVoiceChat(
+                                                                                                                      widget: Expanded(
+                                                            child: IconButton(
+                                                                onPressed: () {
+                                                                  controller.boolList[
+                                                                          index]
+                                                                      ? controller.StopReecoreder(
+                                                                          controller.messages[index].path ??
+                                                                              "",
+                                                                          index)
+                                                                      : controller.playRecorderReciver(
+                                                                          controller.messages[index].path ??
+                                                                              "",
+                                                                          index);
+                                                                },
+                                                                icon: controller
+                                                                            .boolList[
+                                                                        index]
+                                                                    ? Icon(Icons
+                                                                        .pause)
+                                                                    : Icon(Icons
+                                                                        .play_arrow_sharp)),
+                                                                                                                      ),
+                                                                                                                    ),
+                                                            Container(
+                                                              margin: EdgeInsets
+                                                                  .only(
+                                                                left: controller
+                                                                    .messages[
+                                                                index]
+                                                                    .senderId ==
+                                                                    controller
+                                                                        .userid
+                                                                    ? 30
+                                                                    : 0,
+                                                                right: controller
+                                                                    .messages[
+                                                                index]
+                                                                    .senderId ==
+                                                                    controller
+                                                                        .userid
+                                                                    ? 0
+                                                                    : 30,
+                                                              ),
+                                                              child: Text(
+                                                                controller
+                                                                    .messages[
+                                                                index]
+                                                                    .time ??
+                                                                    '',
+                                                                textScaleFactor:
+                                                                ScaleSize
+                                                                    .textScaleFactor(
+                                                                    context),
+                                                              ),
+                                                            )
+                                                          ],
+                                                        ),
                                                   );
                                                 }),
                                       ),

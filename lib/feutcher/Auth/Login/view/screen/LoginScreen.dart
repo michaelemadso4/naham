@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:naham/feutcher/Auth/Login/Controller/LoginController.dart';
+import 'package:naham/feutcher/Auth/Login/Controller/QRCodeController.dart';
 import 'package:naham/feutcher/Auth/Login/view/widgets/EditTxt.dart';
+import 'package:naham/feutcher/Auth/Login/view/widgets/btnGenQR.dart';
 import 'package:naham/feutcher/Auth/Login/view/widgets/btnLogin.dart';
 import 'package:naham/feutcher/mainScreen/view/Screen/mainScreen.dart';
 import 'package:naham/helper/colors/colorsconstant.dart';
 import 'package:naham/helper/scalesize.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -88,8 +91,45 @@ class LoginScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Spacer(),
-                    Container(
+    GetBuilder(
+      init:QRCodeController(),
+      builder: (controller) {
+        return BTNGenQR(
+        txtbtn: "Generate QR Code",
+        onPressed: () {
+        controller.GenerateQRCode();
+        },
+        );
+      }
+    ),
+                    GetBuilder<QRCodeController>(
+                      builder: (controller) {
+                        return controller.isQRShow
+                            ? Column(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: Colors.white),
+                              child: QrImageView(
+                                data: controller.ipaddress,
+                                version: QrVersions.auto,
+                                size: 200.0,
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            Text(
+                              'Scan this QR Code ${controller.ipaddress}',
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ],
+                        )
+                            : SizedBox(height: 100,); // Use SizedBox.shrink() to avoid layout issues
+                      },
+                    ),
+                    Expanded(
+                      flex: 2,
                       child: GetBuilder(
                           init: LoginController(context: context),
                           builder: (controller) {
@@ -108,7 +148,7 @@ class LoginScreen extends StatelessWidget {
                                       Text(
                                         'Welcome Back!',
                                         textScaleFactor:
-                                            ScaleSize.textScaleFactor(context),
+                                        ScaleSize.textScaleFactor(context),
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontWeight: FontWeight.w900,
@@ -117,7 +157,7 @@ class LoginScreen extends StatelessWidget {
                                       Text(
                                         'Lorem ipsum dolor sit amet,\nconsectetur adipiscing elit',
                                         textScaleFactor:
-                                            ScaleSize.textScaleFactor(context),
+                                        ScaleSize.textScaleFactor(context),
                                         style: TextStyle(
                                             color: Colors.grey,
                                             fontWeight: FontWeight.w400,
@@ -138,16 +178,14 @@ class LoginScreen extends StatelessWidget {
                                         validvalu: 'Please Enter Your Password',
                                         obscureText: true,
                                       ),
-                                      SizedBox(
-                                        height: 20,
-                                      ),
-                                     controller.IsLogin?CircularProgressIndicator(): BTNLogin(
+
+                                      controller.IsLogin?CircularProgressIndicator(): BTNLogin(
                                           txtbtn: 'Sign In',
                                           onPressed: () {
                                             if(controller.formkey.currentState!.validate()){
                                               controller.SignInWebService();
                                             }
-                                          })
+                                          }),
                                     ],
                                   )),
                             );

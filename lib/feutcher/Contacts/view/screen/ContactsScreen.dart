@@ -63,7 +63,7 @@ class ContactsScreen extends StatelessWidget {
                 ),
               ],),
           ),
-          SizedBox(height: 80,),
+         
 
          Flexible(
             flex: 2,
