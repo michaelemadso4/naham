@@ -120,7 +120,7 @@ class LoginScreen extends StatelessWidget {
                             ),
                             SizedBox(height: 20),
                             Text(
-                              'Scan this QR Code ${controller.ipaddress}',
+                              'Scan  QR Code ${controller.ipaddress}',
                               style: TextStyle(fontSize: 20),
                             ),
                           ],
