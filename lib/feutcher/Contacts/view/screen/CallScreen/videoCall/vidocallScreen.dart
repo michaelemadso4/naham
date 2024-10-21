@@ -20,7 +20,7 @@ class VideoCallScreen extends StatelessWidget {
             // Show the remote video when the call is active
             return _controller.isCallActive.value
                 ? Positioned.fill(
-              child: RTCVideoView(_controller.remoteRenderer,mirror: true),
+              child: RTCVideoView(_controller.localRenderer),
             )
                 : Center(child: Text('Waiting for call...'));
           }),
@@ -30,7 +30,7 @@ class VideoCallScreen extends StatelessWidget {
             child: Container(
               width: 150,
               height: 200,
-              child: RTCVideoView(_controller.localRenderer, mirror: true, ),
+              child: RTCVideoView(_controller.remoteRenderer, mirror: true),
             ),
           ),
         ],
