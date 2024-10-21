@@ -1,93 +1,76 @@
 import 'dart:convert';
+
 import 'package:flutter_webrtc/flutter_webrtc.dart' as webrtc;
 import 'package:get/get.dart';
 import 'package:naham/helper/ToastMessag/toastmessag.dart';
 import 'package:naham/helper/sherdprefrence/shardprefKeyConst.dart';
 import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+
+import '../../../../helper/SocketController.dart';
 
 class VideoWebRTCController extends GetxController {
-  WebSocketChannel? _channel;
   webrtc.RTCPeerConnection? _peerConnection;
   webrtc.MediaStream? _localStream;
   webrtc.MediaStream? _remoteStream;
-  webrtc.RTCVideoRenderer localRenderer =webrtc.RTCVideoRenderer();
-  webrtc.RTCVideoRenderer remoteRenderer =webrtc.RTCVideoRenderer();
+  webrtc.RTCVideoRenderer localRenderer = webrtc.RTCVideoRenderer();
+  webrtc.RTCVideoRenderer remoteRenderer = webrtc.RTCVideoRenderer();
 
   // Observables for stream management
   var isCallActive = false.obs;
 
+  late SocketController socketController;
+
   @override
   void onInit() {
     super.onInit();
+    socketController = SocketController();
+
+    socketController.addMessageListener(_handleSocketMessage);
+    socketController.addDisconnectListener(_restartConnection);
+    socketController.addErrorListener(_restartConnection);
     initRenderers();
   }
-  initRenderers() async {
-   await localRenderer.initialize();
-   await remoteRenderer.initialize();
-   await connectToSignalingServer();
-  }
-  connectToSignalingServer() {
-    var myuserid = CacheHelper.getData(key: useridKey);
-    var usertoken = CacheHelper.getData(key: access_tokenkey);
 
-    _channel = WebSocketChannel.connect(
-      Uri.parse('wss://naham.tadafuq.ae?user_id=$myuserid&token=$usertoken'),
-    );
-    _channel!.stream.listen(_handleSocketMessage, onDone: _handleWebSocketDisconnection, onError: _handleWebSocketError);
+  Future<void> _restartConnection() async {
+    await _peerConnection?.close();
+    await _createPeerConnection();
+    await initRenderers();
+  }
+
+  initRenderers() async {
+    await localRenderer.initialize();
+    await remoteRenderer.initialize();
   }
 
   // Handle signaling messages (offer, answer, ICE candidates)
   Future<void> _handleSocketMessage(dynamic message) async {
-    final data = jsonDecode(message as String); // Cast 'message' to String before decoding
+    final data = jsonDecode(
+        message as String); // Cast 'message' to String before decoding
     print("Data from socket: $message");
-    CacheHelper.saveData(key: userprofielkey, value: data["sender_id"]);
+    CacheHelper.saveData(
+        key: userprofielkey, value: int.parse(data["sender_id"]));
 
-    print(data['type']);
+    print("typeee ${data['type']}");
 
-    switch (data['type']) {
-    case 'offer':
-    await _createPeerConnection();
-    await _peerConnection?.setRemoteDescription(webrtc. RTCSessionDescription(
-    data['sdp'],
-    data['type'],
-    ));
-    _createAnswer();
-    break;
-    case 'answer':
-    await _peerConnection?.setRemoteDescription(webrtc. RTCSessionDescription(
-    data['sdp'],
-    data['type'],
-    ));
-    break;
-    case 'candidate':
-    var candidate = webrtc. RTCIceCandidate(
-    data['candidate'],
-    data['sdpMid'],
-    data['sdpMLineIndex'],
-    );
-    await _peerConnection?.addCandidate(candidate);
-    break;
-    }
-  }
-  void _handleSignalingMessage(Map<String, dynamic> data) async {
     switch (data['type']) {
       case 'offer':
         await _createPeerConnection();
-        await _peerConnection?.setRemoteDescription(webrtc. RTCSessionDescription(
+        await _peerConnection
+            ?.setRemoteDescription(webrtc.RTCSessionDescription(
           data['sdp'],
           data['type'],
         ));
         _createAnswer();
         break;
       case 'answer':
-        await _peerConnection?.setRemoteDescription(webrtc. RTCSessionDescription(
+        await _peerConnection
+            ?.setRemoteDescription(webrtc.RTCSessionDescription(
           data['sdp'],
           data['type'],
         ));
         break;
       case 'candidate':
-        var candidate = webrtc. RTCIceCandidate(
+        var candidate = webrtc.RTCIceCandidate(
           data['candidate'],
           data['sdpMid'],
           data['sdpMLineIndex'],
@@ -152,9 +135,11 @@ class VideoWebRTCController extends GetxController {
       ],
     };
 
-    _peerConnection = await webrtc. createPeerConnection(configuration);
+    _peerConnection = await webrtc.createPeerConnection(configuration);
 
-    _peerConnection?.onIceCandidate = (webrtc. RTCIceCandidate candidate) {
+    _peerConnection?.onIceConnectionState = _handleIceConnectionState;
+
+    _peerConnection?.onIceCandidate = (webrtc.RTCIceCandidate candidate) {
       var message = {
         'type': 'candidate',
         'candidate': candidate.candidate,
@@ -165,15 +150,23 @@ class VideoWebRTCController extends GetxController {
       _sendToServer(message);
     };
 
-    _peerConnection?.onTrack = (webrtc. RTCTrackEvent event) {
+    _peerConnection?.onTrack = (webrtc.RTCTrackEvent event) {
       if (event.streams.isNotEmpty) {
+        print("remoteeeeeeeeeee");
         _remoteStream = event.streams[0];
         remoteRenderer.srcObject = _remoteStream;
+        update(); // Update the UI if using GetX
       }
     };
 
-    _localStream = await webrtc. navigator.mediaDevices
-        .getUserMedia({'video': true, 'audio': true});
+    _localStream = await webrtc.navigator.mediaDevices.getUserMedia({
+      'video': true,
+      'audio': {
+        'echoCancellation': true,
+        'noiseSuppression': true,
+        'volume': 0.0, // Setting volume to lowest
+      }
+    });
     localRenderer.srcObject = _localStream;
 
     _localStream?.getTracks().forEach((track) {
@@ -184,8 +177,8 @@ class VideoWebRTCController extends GetxController {
   // Create an offer to start the call
   void createOffer() async {
     await _createPeerConnection(); // Ensure peer connection is created
-    webrtc.  RTCSessionDescription description =
-    await _peerConnection!.createOffer();
+    webrtc.RTCSessionDescription description =
+        await _peerConnection!.createOffer();
     _peerConnection!.setLocalDescription(description);
 
     var message = {
@@ -194,13 +187,13 @@ class VideoWebRTCController extends GetxController {
     };
     // _channel?.sink.add(json.encode(message));
     _sendToServer(message);
-    isCallActive(true);  // Set call status to active
+    isCallActive(true); // Set call status to active
   }
 
   // Create an answer in response to an offer
   void _createAnswer() async {
-    webrtc. RTCSessionDescription description =
-    await _peerConnection!.createAnswer();
+    webrtc.RTCSessionDescription description =
+        await _peerConnection!.createAnswer();
     _peerConnection!.setLocalDescription(description);
 
     var message = {
@@ -226,30 +219,39 @@ class VideoWebRTCController extends GetxController {
     closeConnection();
     super.onClose();
   }
-  void _handleWebSocketDisconnection() {
 
-    showToast(text: "WebSocket disconnected!", state: ToastState.ERROR);
-
-    _sendToServer({'type': 'terminate'});
-    _peerConnection?.close();
-    localRenderer.initialize();
-    remoteRenderer.initialize();
-    Future.delayed(Duration(seconds: 1), connectToSignalingServer); // Restart connection
+  // Show toast based on the ICE connection state
+  void _showConnectionToast(webrtc.RTCIceConnectionState state) {
+    if (state == webrtc.RTCIceConnectionState.RTCIceConnectionStateConnected) {
+      showToast(text: "Connection established!", state: ToastState.SUCCESS);
+    } else if (state ==
+        webrtc.RTCIceConnectionState.RTCIceConnectionStateCompleted) {
+      showToast(text: "Connection completed!", state: ToastState.COMPLEATE);
+    } else if (state ==
+        webrtc.RTCIceConnectionState.RTCIceConnectionStateClosed) {
+      showToast(text: "Connection closed!", state: ToastState.ERROR);
+    }
+    update();
   }
+
+  // Handle ICE connection state changes
+  void _handleIceConnectionState(webrtc.RTCIceConnectionState state) {
+    print("ICE Connection State: ${state.name}");
+    _showConnectionToast(state);
+  }
+
   int userid = 0;
-  void _handleWebSocketError(error) {
-    print("WebSocket error: $error");
-    _sendToServer({'type': 'terminate'});
-    // Future.delayed(Duration(seconds: 1), _restartConnection);
-  }
+
   void _sendToServer(Map<String, dynamic> message) {
+    print("hello ${CacheHelper.getData(key: userprofielkey) is int}");
     userid = CacheHelper.getData(key: userprofielkey);
     var myuserid = CacheHelper.getData(key: useridKey);
     message["to_user_id"] = "$userid";
-    message["sender_id"]="$myuserid";
+    message["sender_id"] = "$myuserid";
     print("sending to $userid");
     print("sending from $myuserid");
-    _channel!.sink.add(jsonEncode(message));
-  }
+    socketController.sendToServer(message);
 
+    ///_channel!.sink.add(jsonEncode(message));
+  }
 }

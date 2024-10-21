@@ -3,7 +3,6 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
 import 'package:naham/feutcher/Contacts/controller/chatMainScreen/video_Call_Controller.dart';
 
-
 class VideoCallScreen extends StatelessWidget {
   // Inject the WebRTCController
   final VideoWebRTCController _controller = Get.put(VideoWebRTCController());
@@ -20,17 +19,18 @@ class VideoCallScreen extends StatelessWidget {
             // Show the remote video when the call is active
             return _controller.isCallActive.value
                 ? Positioned.fill(
-              child: RTCVideoView(_controller.localRenderer),
-            )
+                    child: RTCVideoView(_controller.remoteRenderer,mirror: true,),
+                  )
                 : Center(child: Text('Waiting for call...'));
           }),
           Positioned(
             right: 12,
             top: 12,
             child: Container(
-              width: 150,
-              height: 200,
-              child: RTCVideoView(_controller.remoteRenderer, mirror: true),
+                width: 150,
+                height: 200,
+                child: RTCVideoView(_controller.localRenderer, mirror: true),
+                /*color: Colors.black,*/
             ),
           ),
         ],
