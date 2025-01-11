@@ -292,7 +292,7 @@ class WebRTCController extends GetxController {
   void _sendToServer(Map<String, dynamic> message) {
     userid = CacheHelper.getData(key: userprofielkey);
     var myuserid = CacheHelper.getData(key: useridKey);
-    message["to_user_id"] = "$userid";
+    message["to_user_id"] = userid;
     message["sender_id"]=myuserid;
     message["screen"] = "single";
     print("sending to $userid");

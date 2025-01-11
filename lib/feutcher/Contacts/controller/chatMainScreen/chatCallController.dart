@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:dio/dio.dart';
@@ -16,6 +17,7 @@ import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
 
 import '../../../../helper/WebService/webServiceConstant.dart';
 import '../../model/userprofielmodel.dart';
+import '../../view/screen/CallScreen/videoCall/vidocallScreen.dart';
 
 
 
@@ -39,7 +41,7 @@ class ChatCallController extends GetxController {
     var userToken = CacheHelper.getData(key: access_tokenkey);
     // Initialize the SocketController
     socketController = SocketController();
-    //socketController.initialize(userId: myUserId.toString(), token: userToken);
+    socketController.initialize(userId: myUserId.toString(), token: userToken);
 
 // Registering listeners
     socketController.addMessageListener(_handleSocketMessage);
@@ -238,6 +240,9 @@ class ChatCallController extends GetxController {
         case 'calling':
           _handleCall(data);
           break;
+        case 'video_calling':
+          _handleVideoCalling(data);
+          break;
         case 'accepting':
           _handleAccept(data);
           break;
@@ -298,9 +303,6 @@ class ChatCallController extends GetxController {
       print(e);
     }
   }
-  ShowDeclineNotification(){
-
-  }
   final AudioPlayer audioPlayer = AudioPlayer();
   void _playRingtone() async {
     await audioPlayer.play(UrlSource("https://dl.prokerala.com/downloads/ringtones/files/mp3/classic-5916.mp3")); // Ensure the path is correct
@@ -310,6 +312,61 @@ class ChatCallController extends GetxController {
   void dispose() {
     audioPlayer.dispose(); // Release resources
     super.dispose();
+  }
+
+  ShowVideoCallingNotification(title,body,payload) async {
+    _playRingtone();
+    await GetUserInfo(payload['sender_id']);
+    showDialog(context: context, builder: (context){
+      return Center(
+          child: Container(
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(40)),
+            height: 240,
+            margin: EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Titledialog(data: Calling,),
+                BodyDialog(data: "Calling from ${userProfileModel.data!.name}"),
+                SizedBox(height: 20,),
+                Row(
+                  children: [
+                    Expanded(
+                      child: CircleAvatar(
+                        radius: 45,
+                        backgroundColor: Colors.red,
+                        child:IconButton(icon: Icon(Icons.call_end,color: Colors.white,size: 30,),onPressed: ()async{
+
+                          await audioPlayer.stop();
+                          Get.back();
+                          DeclineCall();
+                        },),),
+                    ),
+                    Expanded(
+                      child: CircleAvatar(
+                        radius: 45,
+                        backgroundColor: Colors.green,
+                        child:IconButton(icon: Icon(Icons.call,color: Colors.white,size: 30),onPressed: () async {
+                          /*funStartTaking();
+                          _sendToServer({'type': 'accepting'});
+                          await CacheHelper.saveData(key: userprofielkey, value:userProfileModel.data!.id );*/
+                          Get.back();
+                          Get.to(() => VideoCallScreen(),arguments: {
+                            "userProfileKey":userProfileModel.data!.id,"createOffer":true,
+                          });
+
+                          await audioPlayer.stop();
+
+                        },),),
+                    )
+                  ],
+                )
+              ],
+            ),
+
+          ));
+    });
   }
 
   ShowCallingNotification(title,body,payload) async {
@@ -370,7 +427,10 @@ class ChatCallController extends GetxController {
 
   void SendCall(){
     _sendToServer({'type': 'calling'});
+  }
 
+  void sendVideoCalling(){
+    _sendToServer({'type': 'video_calling'});
   }
   void DeclineCall(){
     _sendToServer({'type': 'DeclineCall'});
@@ -385,6 +445,10 @@ class ChatCallController extends GetxController {
 
     ShowCallingNotification("title","body",data);
 
+  }
+
+  void _handleVideoCalling(Map<String, dynamic> data) async {
+    ShowVideoCallingNotification("title","body", data);
   }
 
   void _handleAccept(Map<String, dynamic> data) async {
@@ -482,7 +546,7 @@ class ChatCallController extends GetxController {
   void _sendToServer(Map<String, dynamic> message) {
     userid = CacheHelper.getData(key: userprofielkey);
     var myuserid = CacheHelper.getData(key: useridKey);
-    message["to_user_id"] = "$userid";
+    message["to_user_id"] = userid;
     message["sender_id"]=myuserid;
     message["screen"] = "chat";
     print("sending to $userid");

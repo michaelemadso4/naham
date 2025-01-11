@@ -155,7 +155,13 @@ class SocketController {
   // Send a message to the server
   void sendToServer(Map<String, dynamic> message) {
     if (_isConnected) {
-      _channel.sink.add(jsonEncode(message));
+      try {
+        String jsonMessage = jsonEncode(message);
+        print("Sending message: $jsonMessage");
+        _channel.sink.add(jsonMessage);
+      } catch (e) {
+        print("Error encoding message: $e");
+      }
     } else {
       print("WebSocket is not connected.");
     }
