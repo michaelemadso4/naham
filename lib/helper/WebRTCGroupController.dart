@@ -243,6 +243,9 @@ class WebRTCGroupController extends GetxController {
         case 'stop':
           _handleStop();
           break;
+        case 'terminate':
+          _handleTerminate();
+          break;
       }
     }
 
@@ -331,6 +334,19 @@ class WebRTCGroupController extends GetxController {
       isPressing = false;
       update();
     }
+  }
+
+  void _handleTerminate() async {
+    localStream?.getAudioTracks().first.enabled = false;
+    Fluttertoast.showToast(
+      msg: "Connection terminated by remote peer.",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+    update();
   }
 
   void _sendToServer(Map<String, dynamic> message) {

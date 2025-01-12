@@ -89,7 +89,31 @@ class VideoWebRTCController extends GetxController {
         );
         await _peerConnection?.addCandidate(candidate);
         break;
+      case 'terminate':
+        _handleTerminate();
+        break;
     }
+  }
+
+  void _handleTerminate() async {
+    print("Terminate message received, closing connection...");
+    await _peerConnection?.close();
+    _localStream?.dispose();
+    _remoteStream?.dispose();
+    await localRenderer.dispose();
+    await remoteRenderer.dispose();
+
+    Fluttertoast.showToast(
+      msg: "Connection terminated by remote peer.",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+
+    // isTalking = false;
+    update();
   }
 
   // Create the peer connection and local stream
@@ -373,6 +397,7 @@ class VideoWebRTCController extends GetxController {
 
   void terminateCall() {
     _sendToServer({'type': 'end_video_calling'});
+    _sendToServer({'type': 'terminate'});
   }
 
   void _sendToServer(Map<String, dynamic> message) {
