@@ -270,7 +270,7 @@ class VideoWebRTCController extends GetxController {
   }
 
   delayUpdated10() {
-    Future.delayed(Duration(seconds: 4), () {
+    Future.delayed(Duration(seconds: 20), () {
       print("Updating controller after 10 seconds...");
       // Trigger an update to refresh UI or notify listeners
       update();
@@ -278,7 +278,7 @@ class VideoWebRTCController extends GetxController {
   }
 
   delayUpdated() async {
-    /*_peerConnection?.onTrack = (webrtc.RTCTrackEvent event) {
+    _peerConnection?.onTrack = (webrtc.RTCTrackEvent event) {
       print("Track received: ${event.track.kind}");
       if (event.streams.isNotEmpty) {
         _remoteStream = event.streams[1];
@@ -287,7 +287,7 @@ class VideoWebRTCController extends GetxController {
         print("Remote stream set");
         //update();
       }
-    };*/
+    };
 
     await initRenderers();
     await _createPeerConnection();
