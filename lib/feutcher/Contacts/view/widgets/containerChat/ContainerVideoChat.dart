@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:naham/feutcher/Contacts/view/screen/VideoPlayerWidget.dart';
 
 class ContainerVideoChat extends StatelessWidget {
   final String path;
@@ -12,11 +13,12 @@ class ContainerVideoChat extends StatelessWidget {
       child:
       InkWell(
         onTap: (){
-
-          Get.toNamed(
-              '/videoplayer',
-              arguments:
-              '$path');
+          print(path);
+          Get.to(()=>VideoPlayerWidget(),arguments: '${path}');
+          // Get.toNamed(
+          //     '/videoplayer',
+          //     arguments:
+          //     '$path');
         },
         child: Stack(
           alignment: Alignment.center,

@@ -149,7 +149,7 @@ class Chatcontactscreen extends StatelessWidget {
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               Container(
-                                                width: width * 0.4,
+                                                width: width * 0.3,
                                                 height: height * 0.01,
                                                 color: kTheryColor,
                                               ),
@@ -163,10 +163,6 @@ class Chatcontactscreen extends StatelessWidget {
                                                   ),
                                                   SizedBox(
                                                     width: 10,
-                                                  ),
-                                                  CircleAvatar(
-                                                    backgroundColor:
-                                                        kSceonderyColor,
                                                   ),
                                                   SizedBox(
                                                     width: 10,
@@ -255,15 +251,16 @@ class Chatcontactscreen extends StatelessWidget {
                                                 SizedBox(
                                                   width: 10,
                                                 ),
-                                                CircleAvatar(
-                                                    backgroundColor:
-                                                        kSceonderyColor,
-                                                    child: IconButton(
-                                                        onPressed: () {},
-                                                        icon: Icon(
-                                                          Icons.video_call,
-                                                          color: Colors.white,
-                                                        ))),
+                                                // video CAll
+                                                // CircleAvatar(
+                                                //     backgroundColor:
+                                                //         kSceonderyColor,
+                                                //     child: IconButton(
+                                                //         onPressed: () {},
+                                                //         icon: Icon(
+                                                //           Icons.video_call,
+                                                //           color: Colors.white,
+                                                //         ))),
                                                 SizedBox(
                                                   width: 10,
                                                 ),

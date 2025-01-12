@@ -24,7 +24,7 @@ class MainController extends GetxController{
 
   List<Widget> widgetOptions = <Widget>[
     ContactsScreen(),
-    SOSScreen(),
+    // SOSScreen(),
     Groupscreen(),
   ];
 

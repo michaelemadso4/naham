@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:naham/feutcher/Contacts/controller/ContactController.dart';
+import 'package:naham/feutcher/Contacts/controller/webrtcvontroller/PushtoTalkController.dart';
 import 'package:naham/feutcher/Contacts/model/contactmodel.dart';
 import 'package:naham/feutcher/Contacts/view/screen/CallScreen/videoCall/vidocallScreen.dart';
 import 'package:naham/feutcher/Contacts/view/screen/chatcontactScreen.dart';
@@ -12,6 +13,7 @@ import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
 
 import '../../controller/chatMainScreen/chatCallController.dart';
 import 'CallScreen/CallScreen.dart';
+import 'chatScreen.dart';
 
 class ContactsScreen extends StatelessWidget {
   const ContactsScreen({super.key});
@@ -48,7 +50,32 @@ class ContactsScreen extends StatelessWidget {
                     builder: (controller) {
                       return GestureDetector(
                         onLongPress: () {
-                          controller.LogOut();
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Logout'),
+                                content: Text('Are you sure you want to Logout?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      // Navigator.of(context).pop(); // Close the dialog
+                                      controller.LogOut();
+                                    },
+                                    child: Text('Logout',style: TextStyle(color: Colors.red.shade900),),
+
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(); // Close the dialog
+                                    },
+                                    child: Text('Cancel'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+
                         },
                         child: Container(
                           padding: EdgeInsets.all(10),
@@ -149,10 +176,43 @@ class ContactsScreen extends StatelessWidget {
                                           child: IconButton(
                                             onPressed: () {
                                               CacheHelper.saveData(
-                                                  key: userprofielkey,
-                                                  value: contactModel
-                                                      .data![index].id);
-                                              Get.to(() => CallScreen());
+                                                  key: 'emailuser',
+                                                  value:
+                                                  "${contactModel.data![index].email}");
+                                              CacheHelper.saveData(
+                                                  key: 'nameuser',
+                                                  value:
+                                                  "${contactModel.data![index].name}");
+                                              CacheHelper.saveData(
+                                                  key: 'imguser',
+                                                  value:
+                                                  "${contactModel.data![index].profileImageFullUrl}");
+                                              CacheHelper.saveData(
+                                                  key: 'iduser',
+                                                  value:
+                                                  contactModel
+                                                      .data![index]
+                                                      .id);
+                                              CacheHelper.saveData(
+                                                  key: 'userUID',
+                                                  value:
+                                                  "${contactModel.data![index].id}");
+                                              Get.to(
+                                                      () =>
+                                                      ChatScreen(),
+                                                  transition: Transition
+                                                      .rightToLeftWithFade,
+                                                  duration: Duration(
+                                                      milliseconds:
+                                                      300));
+                                              Get.delete<
+                                                  PushToTalk>();
+
+                                              // CacheHelper.saveData(
+                                              //     key: userprofielkey,
+                                              //     value: contactModel
+                                              //         .data![index].id);
+                                              // Get.to(() => CallScreen());
                                             },
                                             icon: Icon(
                                               Icons.messenger,

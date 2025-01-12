@@ -57,10 +57,10 @@ class MainScreen extends StatelessWidget {
                     icon: Icon(Icons.person),
                     label: 'Contact',
                   ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.sos_outlined),
-                    label: 'SOS',
-                  ),
+                  // BottomNavigationBarItem(
+                  //   icon: Icon(Icons.sos_outlined),
+                  //   label: 'SOS',
+                  // ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.group),
                     label: 'Group',
