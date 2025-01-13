@@ -145,11 +145,22 @@ class ChatCallController extends GetxController {
   }
 
 
-
-  funStartTaking() async {
+  createOffer() async {
     if(peerConnection == null || peerConnection?.connectionState == RTCPeerConnectionState.RTCPeerConnectionStateClosed) {
       await _initializeWebRTC();
     }
+    webrtc.RTCSessionDescription? offer = await peerConnection?.createOffer();
+    await peerConnection?.setLocalDescription(offer!);
+    update();
+    if(offer?.sdp  != null) {
+      _sendToServer({'type': 'offer', 'sdp': offer?.sdp});
+    }
+
+  }
+
+
+  funStartTaking() async {
+
     if (localStream == null || localStream!.getTracks().isEmpty) {
       print("Local stream is null");
       return;
@@ -167,10 +178,7 @@ class ChatCallController extends GetxController {
       peerConnection?.addTrack(track, localStream!);
     });
 
-    webrtc.RTCSessionDescription? offer = await peerConnection?.createOffer();
-    await peerConnection?.setLocalDescription(offer!);
-    update();
-    _sendToServer({'type': 'offer', 'sdp': offer?.sdp});
+
 
 
   }
@@ -316,7 +324,7 @@ class ChatCallController extends GetxController {
   ShowVideoCallingNotification(title,body,payload) async {
     _playRingtone();
     await GetUserInfo(payload['sender_id']);
-    showDialog(context: context, builder: (context){
+    showDialog(context: context,barrierDismissible: false, builder: (context){
       return Center(
           child: Container(
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(40)),
@@ -368,7 +376,7 @@ class ChatCallController extends GetxController {
   ShowCallingNotification(title,body,payload) async {
     _playRingtone();
     await GetUserInfo(payload['sender_id']);
-    showDialog(context: context, builder: (context){
+    showDialog(context: context,barrierDismissible: false,builder: (context){
       return Center(
           child: Container(
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(40)),
@@ -534,6 +542,11 @@ class ChatCallController extends GetxController {
   void _handleIceConnectionState(webrtc.RTCIceConnectionState state) {
     print("ICE Connection State: ${state.name}");
     _showConnectionToast(state);
+    if(state ==
+        webrtc.RTCIceConnectionState.RTCIceConnectionStateCompleted ||
+        state == webrtc.RTCIceConnectionState.RTCIceConnectionStateConnected) {
+      funStartTaking();
+    }
     if (state ==
         webrtc.RTCIceConnectionState.RTCIceConnectionStateDisconnected ||
         state == webrtc.RTCIceConnectionState.RTCIceConnectionStateFailed) {

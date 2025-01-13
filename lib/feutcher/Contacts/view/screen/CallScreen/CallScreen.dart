@@ -157,7 +157,7 @@ class CallScreen extends StatelessWidget {
                                   init: ChatCallController(context),
                                   builder: (controller) {
                                     if(isStartTalking == true) {
-                                        controller.funStartTaking();
+                                        controller.createOffer();
                                     }
                                     return IconButton(
                                       onPressed: () {
