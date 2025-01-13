@@ -309,8 +309,9 @@ class ChatCallController extends GetxController {
   }
 
   @override
-  void dispose() {
+  void dispose()async {
     audioPlayer.dispose(); // Release resources
+    await audioPlayer.stop();
     super.dispose();
   }
 
