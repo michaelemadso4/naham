@@ -14,8 +14,14 @@ import 'package:naham/helper/colors/colorsconstant.dart';
 class CallScreen extends StatelessWidget {
   const CallScreen({super.key});
 
+
+
   @override
   Widget build(BuildContext context) {
+    final Map<String, dynamic> arguments = Get.arguments ?? {};
+    final bool? isStartTalking = arguments['is_start_talking'];
+
+
     var size, height, width;
     size = MediaQuery.of(context).size;
     height = size.height;
@@ -150,6 +156,9 @@ class CallScreen extends StatelessWidget {
                               child: GetBuilder(
                                   init: ChatCallController(context),
                                   builder: (controller) {
+                                    if(isStartTalking == true) {
+                                        controller.funStartTaking();
+                                    }
                                     return IconButton(
                                       onPressed: () {
                                         controller.funStopTaking();

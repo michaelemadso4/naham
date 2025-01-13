@@ -153,8 +153,7 @@ class ChatScreen extends StatelessWidget {
                                 IconButton(
                                     onPressed: () {
                                       Get.to(
-                                        () => CallScreen(),
-                                      );
+                                        () => CallScreen(),);
                                       Get.delete<ChatMainController>();
                                     },
                                     icon: Icon(

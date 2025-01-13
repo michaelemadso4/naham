@@ -35,19 +35,20 @@ class ChatCallController extends GetxController {
   late SocketController socketController;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
+    await _initializeWebRTC();
     var myUserId = CacheHelper.getData(key: useridKey);
     var userToken = CacheHelper.getData(key: access_tokenkey);
     // Initialize the SocketController
     socketController = SocketController();
-    socketController.initialize(userId: myUserId.toString(), token: userToken);
+    //socketController.initialize(userId: myUserId.toString(), token: userToken);
 
 // Registering listeners
     socketController.addMessageListener(_handleSocketMessage);
     socketController.addDisconnectListener(_restartConnection);
     socketController.addErrorListener(_restartConnection);
-    _initializeWebRTC();
+
   }
 
   Future<void> _initializeWebRTC() async {
@@ -59,7 +60,6 @@ class ChatCallController extends GetxController {
         _handleRemoteStream;
     peerConnection?.onIceConnectionState = _handleIceConnectionState;
 
-    update();
   }
 
   void _handleIceCandidate(webrtc.RTCIceCandidate candidate) {
@@ -144,14 +144,15 @@ class ChatCallController extends GetxController {
     return await webrtc.createPeerConnection(configuration);
   }
 
-  funStartTaking() async {
-    if (peerConnection != null) {
-      await peerConnection?.close(); // Close any existing connection before starting a new one
-    }
-    await _initializeWebRTC();
 
+
+  funStartTaking() async {
+    if(peerConnection == null || peerConnection?.connectionState == RTCPeerConnectionState.RTCPeerConnectionStateClosed) {
+      await _initializeWebRTC();
+    }
     if (localStream == null || localStream!.getTracks().isEmpty) {
-      localStream = await _getUserMedia();
+      print("Local stream is null");
+      return;
     }
 
     final audioTracks = localStream!.getAudioTracks();
@@ -168,10 +169,10 @@ class ChatCallController extends GetxController {
 
     webrtc.RTCSessionDescription? offer = await peerConnection?.createOffer();
     await peerConnection?.setLocalDescription(offer!);
-
+    update();
     _sendToServer({'type': 'offer', 'sdp': offer?.sdp});
 
-    update();
+
   }
 
   funStopTaking() {
@@ -242,9 +243,6 @@ class ChatCallController extends GetxController {
           break;
         case 'video_calling':
           _handleVideoCalling(data);
-          break;
-        case 'accepting':
-          _handleAccept(data);
           break;
         case 'endcalling':
           funStopTaking();
@@ -349,9 +347,6 @@ class ChatCallController extends GetxController {
                         radius: 45,
                         backgroundColor: Colors.green,
                         child:IconButton(icon: Icon(Icons.call,color: Colors.white,size: 30),onPressed: () async {
-                          /*funStartTaking();
-                          _sendToServer({'type': 'accepting'});
-                          await CacheHelper.saveData(key: userprofielkey, value:userProfileModel.data!.id );*/
                           Get.back();
                           Get.to(() => VideoCallScreen(),arguments: {
                             "userProfileKey":userProfileModel.data!.id,"createOffer":true,
@@ -404,8 +399,8 @@ class ChatCallController extends GetxController {
                         radius: 45,
                         backgroundColor: Colors.green,
                         child:IconButton(icon: Icon(Icons.call,color: Colors.white,size: 30),onPressed: () async {
-                          funStartTaking();
-                          _sendToServer({'type': 'accepting'});
+
+
                           await CacheHelper.saveData(key: userprofielkey, value:userProfileModel.data!.id );
                           Get.back();
                           Get.to(() => CallScreen(),arguments: {
@@ -435,7 +430,6 @@ class ChatCallController extends GetxController {
   }
   void DeclineCall(){
     _sendToServer({'type': 'DeclineCall'});
-
   }
   void EndCall(){
     _sendToServer({'type': 'endcalling'});
@@ -452,16 +446,9 @@ class ChatCallController extends GetxController {
     ShowVideoCallingNotification("title","body", data);
   }
 
-  void _handleAccept(Map<String, dynamic> data) async {
 
-    funStartTaking();
 
-  }
-  /*void _handleOffer(Map<String, dynamic> data) async {
-
-    if (peerConnection == null || peerConnection?.signalingState == webrtc.RTCSignalingState.RTCSignalingStateClosed) {
-      await _initializeWebRTC(); // Reinitialize the connection if it's not already available
-    }
+  void _handleOffer(Map<String, dynamic> data) async {
 
     final description = webrtc.RTCSessionDescription(data['sdp'], 'offer');
     await peerConnection?.setRemoteDescription(description);
@@ -471,39 +458,13 @@ class ChatCallController extends GetxController {
 
     _sendToServer({'type': 'answer', 'sdp': answer?.sdp});
   }
-*/
-  void _handleOffer(Map<String, dynamic> data) async {
-    // Ensure that the peer connection is ready
-    if (peerConnection == null ||
-        peerConnection?.signalingState == webrtc.RTCSignalingState.RTCSignalingStateClosed) {
-      await _initializeWebRTC();
-    }
-
-    // Check if the state is `have-local-offer`, and rollback if necessary
-    if (peerConnection?.signalingState == webrtc.RTCSignalingState.RTCSignalingStateHaveLocalOffer) {
-      // Rollback to get back to stable state
-      await peerConnection?.setLocalDescription(webrtc.RTCSessionDescription('', 'rollback'));
-    }
-
-    if (peerConnection?.signalingState == webrtc.RTCSignalingState.RTCSignalingStateStable) {
-      final description = webrtc.RTCSessionDescription(data['sdp'], 'offer');
-      await peerConnection?.setRemoteDescription(description);
-
-      final answer = await peerConnection?.createAnswer();
-      await peerConnection?.setLocalDescription(answer!);
-
-      _sendToServer({'type': 'answer', 'sdp': answer?.sdp});
-    } else {
-      print('Invalid signaling state: ${peerConnection?.signalingState}');
-      // Handle error or renegotiation logic
-    }
-  }
 
 
   void _handleAnswer(Map<String, dynamic> data) async {
-    final description = webrtc.RTCSessionDescription(data['sdp'], 'answer');
-    await peerConnection?.setRemoteDescription(description);
-
+    if(data['sdp'] != null) {
+      final description = webrtc.RTCSessionDescription(data['sdp'], 'answer');
+      await peerConnection?.setRemoteDescription(description);
+    }
   }
 
   void _handleCandidate(Map<String, dynamic> data) async {
@@ -523,6 +484,8 @@ class ChatCallController extends GetxController {
   void _handleStop() {
     localStream?.getAudioTracks().first.enabled = false;
   }
+
+
   void _handleTerminate() async {
     print("Terminate message received, closing connection...");
     await peerConnection?.close();
@@ -553,7 +516,6 @@ class ChatCallController extends GetxController {
     print("sending to $userid");
     print("sending from $myuserid");
     socketController.sendToServer(message);
-    //_channel.sink.add(jsonEncode(message));
   }
 
   void _handleRemoteStream(webrtc.MediaStream stream) {
@@ -575,7 +537,7 @@ class ChatCallController extends GetxController {
     if (state ==
         webrtc.RTCIceConnectionState.RTCIceConnectionStateDisconnected ||
         state == webrtc.RTCIceConnectionState.RTCIceConnectionStateFailed) {
-      //Future.delayed(Duration(seconds: 5), _restartConnection);
+      Future.delayed(Duration(seconds: 5), _restartConnection);
     }
   }
 

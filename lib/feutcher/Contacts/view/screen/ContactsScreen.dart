@@ -55,19 +55,24 @@ class ContactsScreen extends StatelessWidget {
                             builder: (BuildContext context) {
                               return AlertDialog(
                                 title: Text('Logout'),
-                                content: Text('Are you sure you want to Logout?'),
+                                content:
+                                    Text('Are you sure you want to Logout?'),
                                 actions: [
                                   TextButton(
                                     onPressed: () {
                                       // Navigator.of(context).pop(); // Close the dialog
                                       controller.LogOut();
                                     },
-                                    child: Text('Logout',style: TextStyle(color: Colors.red.shade900),),
-
+                                    child: Text(
+                                      'Logout',
+                                      style:
+                                          TextStyle(color: Colors.red.shade900),
+                                    ),
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      Navigator.of(context).pop(); // Close the dialog
+                                      Navigator.of(context)
+                                          .pop(); // Close the dialog
                                     },
                                     child: Text('Cancel'),
                                   ),
@@ -75,7 +80,6 @@ class ContactsScreen extends StatelessWidget {
                               );
                             },
                           );
-
                         },
                         child: Container(
                           padding: EdgeInsets.all(10),
@@ -158,7 +162,9 @@ class ContactsScreen extends StatelessWidget {
                                                           "userProfileKey":
                                                               contactModel
                                                                   .data![index]
-                                                                  .id
+                                                                  .id,
+                                                          "is_start_talking":
+                                                              true,
                                                         });
                                                   },
                                                   icon: Icon(
@@ -178,35 +184,29 @@ class ContactsScreen extends StatelessWidget {
                                               CacheHelper.saveData(
                                                   key: 'emailuser',
                                                   value:
-                                                  "${contactModel.data![index].email}");
+                                                      "${contactModel.data![index].email}");
                                               CacheHelper.saveData(
                                                   key: 'nameuser',
                                                   value:
-                                                  "${contactModel.data![index].name}");
+                                                      "${contactModel.data![index].name}");
                                               CacheHelper.saveData(
                                                   key: 'imguser',
                                                   value:
-                                                  "${contactModel.data![index].profileImageFullUrl}");
+                                                      "${contactModel.data![index].profileImageFullUrl}");
                                               CacheHelper.saveData(
                                                   key: 'iduser',
-                                                  value:
-                                                  contactModel
-                                                      .data![index]
-                                                      .id);
+                                                  value: contactModel
+                                                      .data![index].id);
                                               CacheHelper.saveData(
                                                   key: 'userUID',
                                                   value:
-                                                  "${contactModel.data![index].id}");
-                                              Get.to(
-                                                      () =>
-                                                      ChatScreen(),
+                                                      "${contactModel.data![index].id}");
+                                              Get.to(() => ChatScreen(),
                                                   transition: Transition
                                                       .rightToLeftWithFade,
                                                   duration: Duration(
-                                                      milliseconds:
-                                                      300));
-                                              Get.delete<
-                                                  PushToTalk>();
+                                                      milliseconds: 300));
+                                              Get.delete<PushToTalk>();
 
                                               // CacheHelper.saveData(
                                               //     key: userprofielkey,
@@ -234,7 +234,8 @@ class ContactsScreen extends StatelessWidget {
                                                         key: userprofielkey,
                                                         value: contactModel
                                                             .data![index].id);
-                                                    controller.sendVideoCalling();
+                                                    controller
+                                                        .sendVideoCalling();
                                                     Get.to(() =>
                                                         VideoCallScreen());
                                                   },
