@@ -11,6 +11,8 @@ import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
 
 
 class WebRTCController extends GetxController {
+
+  static final WebRTCController _instance = WebRTCController._internal();
   late webrtc.RTCPeerConnection? peerConnection;
   webrtc.MediaStream? localStream;
   webrtc.MediaStream? remoteStream;
@@ -19,6 +21,10 @@ class WebRTCController extends GetxController {
 
   late SocketController socketController;
 
+  WebRTCController._internal();
+
+
+  factory WebRTCController() => _instance;
 
 
   @override

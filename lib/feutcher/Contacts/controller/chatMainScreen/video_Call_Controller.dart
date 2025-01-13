@@ -17,6 +17,8 @@ class VideoWebRTCController extends GetxController {
   webrtc.RTCVideoRenderer localRenderer = webrtc.RTCVideoRenderer();
   webrtc.RTCVideoRenderer remoteRenderer = webrtc.RTCVideoRenderer();
 
+  WebRTCController webRTCController = WebRTCController();
+
   // Observables for loading state
   RxBool isLocalRendererReady = false.obs;
   RxBool isRemoteRendererReady = false.obs;
@@ -95,7 +97,7 @@ class VideoWebRTCController extends GetxController {
         break;
     }
   }
-WebRTCController webRTCController = WebRTCController();
+
   void _handleTerminate() async {
 
     print("Terminate message received, closing connection...");
@@ -334,6 +336,7 @@ WebRTCController webRTCController = WebRTCController();
 
   // Close the connection
   void closeConnection() {
+    webRTCController.funStopTaking();
     print("Closing WebRTC connection...");
     _localStream?.dispose();
     _localStream = null;
@@ -399,6 +402,7 @@ WebRTCController webRTCController = WebRTCController();
   }
 
   void terminateCall() {
+    webRTCController.funStopTaking();
     _sendToServer({'type': 'end_video_calling'});
     _sendToServer({'type': 'terminate'});
   }
