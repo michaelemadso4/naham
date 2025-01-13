@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart' as webrtc;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:naham/helper/WebRTCController.dart';
 import 'package:naham/helper/sherdprefrence/shardprefKeyConst.dart';
 import 'package:naham/helper/sherdprefrence/sharedprefrenc.dart';
 
@@ -94,12 +95,14 @@ class VideoWebRTCController extends GetxController {
         break;
     }
   }
-
+WebRTCController webRTCController = WebRTCController();
   void _handleTerminate() async {
+
     print("Terminate message received, closing connection...");
     await _peerConnection?.close();
     _localStream?.dispose();
     _remoteStream?.dispose();
+    webRTCController.funStopTaking();
     await localRenderer.dispose();
     await remoteRenderer.dispose();
 
