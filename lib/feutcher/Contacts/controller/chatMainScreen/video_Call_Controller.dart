@@ -106,6 +106,8 @@ class VideoWebRTCController extends GetxController {
   }
 
   void EndCall(){
+
+
     _sendToServer({'type': 'endcalling'});
 
   }

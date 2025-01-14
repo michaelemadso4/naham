@@ -144,10 +144,6 @@ class CallScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center ,
                         children: [
                           Flexible(
-                              flex: 1,
-                              child: IconBtn(icon: Icons.mic)),
-
-                          Flexible(
                             flex: 1,
                             fit: FlexFit.tight,
                             child: CircleAvatar(
@@ -174,9 +170,7 @@ class CallScreen extends StatelessWidget {
                                   }),
                             ),
                           ),
-                          Flexible(
-                              flex: 1,
-                              child: IconBtn(icon: Icons.camera_alt)),
+
                         ],
                       ),
 

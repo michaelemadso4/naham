@@ -7,7 +7,6 @@ class VideoCallScreen extends StatelessWidget {
 
 
 
-
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> arguments = Get.arguments ?? {};
@@ -26,9 +25,7 @@ class VideoCallScreen extends StatelessWidget {
         controller.delayUpdated10();
 
         return Scaffold(
-          appBar: AppBar(
-            title: Text('WebRTC Video Call with GetX'),
-          ),
+
           body: GestureDetector(
             onDoubleTap: () {
               // Toggle between local and remote renderer on double tap

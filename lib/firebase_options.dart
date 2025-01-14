@@ -41,48 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyD8w3NqcRySxXY9IQyexJBUfSOYhcnUncg',
-    appId: '1:186895787525:web:61451997c33c379fa05e6c',
-    messagingSenderId: '186895787525',
-    projectId: 'naham-83039',
-    authDomain: 'naham-83039.firebaseapp.com',
-    storageBucket: 'naham-83039.appspot.com',
-    measurementId: 'G-LJ2GBR14BX',
+    apiKey: 'AIzaSyDuxavuKWexqwazO-o2n-LgzlwwUFJ0iYA',
+    appId: '1:170013918155:web:5d133d6fa450c9a9c8ac4e',
+    messagingSenderId: '170013918155',
+    projectId: 'ngchat-b43ff',
+    authDomain: 'ngchat-b43ff.firebaseapp.com',
+    storageBucket: 'ngchat-b43ff.firebasestorage.app',
+    measurementId: 'G-1RELB142DQ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBw73OC7lXYsKxeexicwuO3gT8kyn3NfWo',
-    appId: '1:186895787525:android:2895a3f04ce29c59a05e6c',
-    messagingSenderId: '186895787525',
-    projectId: 'naham-83039',
-    storageBucket: 'naham-83039.appspot.com',
+    apiKey: 'AIzaSyBOBzmiu8MLt8kHNo5oQDbhzeDT164M6ms',
+    appId: '1:170013918155:android:15f56c80e47606dbc8ac4e',
+    messagingSenderId: '170013918155',
+    projectId: 'ngchat-b43ff',
+    storageBucket: 'ngchat-b43ff.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCWBVRKAnGlX-fks8EBwsKsPgcLAuuMQY4',
-    appId: '1:186895787525:ios:65b6afe0c97aac17a05e6c',
-    messagingSenderId: '186895787525',
-    projectId: 'naham-83039',
-    storageBucket: 'naham-83039.appspot.com',
+    apiKey: 'AIzaSyBV3pHLw13jCjfjDSAK0pAFW_0v2vgwRuM',
+    appId: '1:170013918155:ios:b8273635d7331930c8ac4e',
+    messagingSenderId: '170013918155',
+    projectId: 'ngchat-b43ff',
+    storageBucket: 'ngchat-b43ff.firebasestorage.app',
     iosBundleId: 'com.tadafuq.naham',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCWBVRKAnGlX-fks8EBwsKsPgcLAuuMQY4',
-    appId: '1:186895787525:ios:65b6afe0c97aac17a05e6c',
-    messagingSenderId: '186895787525',
-    projectId: 'naham-83039',
-    storageBucket: 'naham-83039.appspot.com',
+    apiKey: 'AIzaSyBV3pHLw13jCjfjDSAK0pAFW_0v2vgwRuM',
+    appId: '1:170013918155:ios:b8273635d7331930c8ac4e',
+    messagingSenderId: '170013918155',
+    projectId: 'ngchat-b43ff',
+    storageBucket: 'ngchat-b43ff.firebasestorage.app',
     iosBundleId: 'com.tadafuq.naham',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyD8w3NqcRySxXY9IQyexJBUfSOYhcnUncg',
-    appId: '1:186895787525:web:bf60fef1aee8ce05a05e6c',
-    messagingSenderId: '186895787525',
-    projectId: 'naham-83039',
-    authDomain: 'naham-83039.firebaseapp.com',
-    storageBucket: 'naham-83039.appspot.com',
-    measurementId: 'G-RVH30T0L29',
+    apiKey: 'AIzaSyDuxavuKWexqwazO-o2n-LgzlwwUFJ0iYA',
+    appId: '1:170013918155:web:e124b3c72f38cdfbc8ac4e',
+    messagingSenderId: '170013918155',
+    projectId: 'ngchat-b43ff',
+    authDomain: 'ngchat-b43ff.firebaseapp.com',
+    storageBucket: 'ngchat-b43ff.firebasestorage.app',
+    measurementId: 'G-1Z7B0GB62W',
   );
+
 }

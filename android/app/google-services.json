@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "186895787525",
-    "project_id": "naham-83039",
-    "storage_bucket": "naham-83039.appspot.com"
+    "project_number": "170013918155",
+    "project_id": "ngchat-b43ff",
+    "storage_bucket": "ngchat-b43ff.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:186895787525:android:2895a3f04ce29c59a05e6c",
+        "mobilesdk_app_id": "1:170013918155:android:15f56c80e47606dbc8ac4e",
         "android_client_info": {
           "package_name": "com.tadafuq.naham"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBw73OC7lXYsKxeexicwuO3gT8kyn3NfWo"
+          "current_key": "AIzaSyBOBzmiu8MLt8kHNo5oQDbhzeDT164M6ms"
         }
       ],
       "services": {

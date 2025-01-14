@@ -180,27 +180,14 @@ class ContactsScreen extends StatelessWidget {
                                         child: CircleAvatar(
                                           backgroundColor: kPrimaryColor,
                                           child: IconButton(
-                                            onPressed: () {
-                                              CacheHelper.saveData(
-                                                  key: 'emailuser',
-                                                  value:
-                                                      "${contactModel.data![index].email}");
-                                              CacheHelper.saveData(
-                                                  key: 'nameuser',
-                                                  value:
-                                                      "${contactModel.data![index].name}");
-                                              CacheHelper.saveData(
-                                                  key: 'imguser',
-                                                  value:
-                                                      "${contactModel.data![index].profileImageFullUrl}");
-                                              CacheHelper.saveData(
-                                                  key: 'iduser',
+                                            onPressed: () async {
+                                              await CacheHelper.saveData(
+                                                  key: userprofielkey,
                                                   value: contactModel
                                                       .data![index].id);
-                                              CacheHelper.saveData(
-                                                  key: 'userUID',
-                                                  value:
-                                                      "${contactModel.data![index].id}");
+/*
+
+ */
                                               Get.to(() => ChatScreen(),
                                                   transition: Transition
                                                       .rightToLeftWithFade,
@@ -208,11 +195,7 @@ class ContactsScreen extends StatelessWidget {
                                                       milliseconds: 300));
                                               Get.delete<PushToTalk>();
 
-                                              // CacheHelper.saveData(
-                                              //     key: userprofielkey,
-                                              //     value: contactModel
-                                              //         .data![index].id);
-                                              // Get.to(() => CallScreen());
+
                                             },
                                             icon: Icon(
                                               Icons.messenger,

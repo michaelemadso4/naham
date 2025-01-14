@@ -100,7 +100,8 @@ class LoginController extends GetxController {
         CacheHelper.saveData(
             key: userphotoKey, value: usermodel.data!.profileImageFullUrl);
         CacheHelper.saveData(key: usergurdKey, value: usermodel.data!.guard);
-        Get.toNamed("/mainscreen");
+        // Get.toNamed("/mainscreen");
+        Get.offNamed('/mainscreen');
         // SignINFireBase();
         update();
       } else if (response.statusCode == 401) {
