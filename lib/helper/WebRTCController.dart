@@ -204,10 +204,10 @@ class WebRTCController extends GetxController {
 
   void _handleSocketMessage(dynamic message) {
     final data = jsonDecode(message as String); // Cast 'message' to String before decoding
-    print("Data from socket: $message");
+    print("WebRTCController Data from socket: $message");
     CacheHelper.saveData(key: userprofielkey, value: data["sender_id"]);
 
-    if (data["screen"] == "single") {
+    if (data["screen"] == "webrtc_controller") {
       switch (data['type']) {
         case 'offer':
           _handleOffer(data);
@@ -299,10 +299,12 @@ class WebRTCController extends GetxController {
     var myuserid = CacheHelper.getData(key: useridKey);
     message["to_user_id"] = userid;
     message["sender_id"]=myuserid;
-    message["screen"] = "single";
+    message["screen"] = "webrtc_controller";
     print("sending to $userid");
     print("sending from $myuserid");
     print("messsssssssssssssssage ${message}");
+    String jsonMessage = jsonEncode(message);
+    print("WebRTCController Sending message: $jsonMessage");
     socketController.sendToServer(message);
   }
 

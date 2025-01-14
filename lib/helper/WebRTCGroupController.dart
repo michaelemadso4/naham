@@ -224,11 +224,11 @@ class WebRTCGroupController extends GetxController {
   void _handleSocketMessage(dynamic message) {
     final data = jsonDecode(
         message as String); // Cast 'message' to String before decoding
-    print("Data from socket: $message");
+    print("WebRTCGroupController Data from socket: $message");
 
     print(data['type']);
 
-    if(data["screen"] == "group"){
+    if(data["screen"] == "webrtc_group_controller"){
       print("is group trueeeeeeeeeeee");
       switch (data['type']) {
         case 'offer':
@@ -352,10 +352,12 @@ class WebRTCGroupController extends GetxController {
   void _sendToServer(Map<String, dynamic> message) {
     var myuserid = CacheHelper.getData(key: useridKey);
     message["sender_id"] = myuserid;
-    message["screen"] = "group";
+    message["screen"] = "webrtc_group_controller";
     print("sending from $myuserid");
     print("sendiiiiiiiiiiiiiing");
     print("messsssssssssssssssage ${message}");
+    String jsonMessage = jsonEncode(message);
+    print("WebRTCGroupController Sending message: $jsonMessage");
     socketController.sendToServer(message);
 
   }

@@ -6,15 +6,18 @@ import 'package:naham/feutcher/Contacts/controller/chatMainScreen/video_Call_Con
 class VideoCallScreen extends StatelessWidget {
 
 
+
+
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> arguments = Get.arguments ?? {};
     final bool? createOffer = arguments['createOffer'];
 
+
     return GetBuilder(
       init: VideoWebRTCController(),
       builder: (controller) {
-        if (createOffer == true) {
+        if (createOffer == true && !controller.isEnd) {
           controller.createOffer();
         } else {
           controller.delayUpdated();
@@ -57,9 +60,10 @@ class VideoCallScreen extends StatelessWidget {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
+              controller.funStopTaking();
+              controller.EndCall();
+              controller.isEnd = true;
               Get.back();
-              controller.terminateCall();
-              controller.closeConnection();
             },
             child: Icon(Icons.call_end),
           ),

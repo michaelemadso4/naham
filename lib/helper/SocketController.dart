@@ -157,7 +157,7 @@ class SocketController {
     if (_isConnected) {
       try {
         String jsonMessage = jsonEncode(message);
-        print("Sending message: $jsonMessage");
+        // print("Sending message: $jsonMessage");
         _channel.sink.add(jsonMessage);
       } catch (e) {
         print("Error encoding message: $e");

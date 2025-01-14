@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -25,18 +26,23 @@ class VideoWebRTCController extends GetxController {
 
   RxBool isLocalRendererVisible = true.obs;
 
+  bool isEnd = false;
+
   SocketController socketController = SocketController();
+  Timer? _delayTimer;
 
   @override
   void onInit() async {
     super.onInit();
     print("init video");
+    isEnd = false;
 
     socketController.addMessageListener(_handleSocketMessage);
   }
 
   Future<void> initRenderers() async {
     try {
+      print("initRenderers");
       await localRenderer.initialize();
       await remoteRenderer.initialize();
       print("Renderers initialized successfully");
@@ -56,46 +62,52 @@ class VideoWebRTCController extends GetxController {
   Future<void> _handleSocketMessage(dynamic message) async {
     final data = jsonDecode(
         message as String); // Cast 'message' to String before decoding
-    print("Data from socket: $message");
+    print("VideoCallController Data from socket: $message");
     if (data["sender_id"] is int)
       CacheHelper.saveData(key: userprofielkey, value: data["sender_id"]);
 
     print(data['type']);
     print("backkkk");
 
-    switch (data['type']) {
-      case 'end_video_calling':
-        closeConnection();
-        Get.back();
-        break;
-      case 'offer':
-        await _peerConnection
-            ?.setRemoteDescription(webrtc.RTCSessionDescription(
-          data['sdp'],
-          data['type'],
-        ));
-        _createAnswer();
-        break;
-      case 'answer':
-        await _peerConnection
-            ?.setRemoteDescription(webrtc.RTCSessionDescription(
-          data['sdp'],
-          data['type'],
-        ));
+    if(data['screen'] == 'video_call_screen') {
+      switch (data['type']) {
+        case 'endcalling':
+          webRTCController.funStopTaking();
+          funStopTaking();
+          Get.back();
+          break;
+        case 'offer':
+          await _peerConnection
+              ?.setRemoteDescription(webrtc.RTCSessionDescription(
+            data['sdp'],
+            data['type'],
+          ));
+          _createAnswer();
+          break;
+        case 'answer':
+          await _peerConnection
+              ?.setRemoteDescription(webrtc.RTCSessionDescription(
+            data['sdp'],
+            data['type'],
+          ));
 
-        break;
-      case 'candidate':
-        var candidate = webrtc.RTCIceCandidate(
-          data['candidate'],
-          data['sdpMid'],
-          data['sdpMLineIndex'],
-        );
-        await _peerConnection?.addCandidate(candidate);
-        break;
-      case 'terminate':
-        _handleTerminate();
-        break;
+          break;
+        case 'candidate':
+          var candidate = webrtc.RTCIceCandidate(
+            data['candidate'],
+            data['sdpMid'],
+            data['sdpMLineIndex'],
+          );
+          await _peerConnection?.addCandidate(candidate);
+          break;
+      }
     }
+
+  }
+
+  void EndCall(){
+    _sendToServer({'type': 'endcalling'});
+
   }
 
   void _handleTerminate() async {
@@ -118,7 +130,7 @@ class VideoWebRTCController extends GetxController {
     );
 
     // isTalking = false;
-    update();
+    //update();
   }
 
   // Create the peer connection and local stream
@@ -282,6 +294,7 @@ class VideoWebRTCController extends GetxController {
 
   // Create an offer to start the call
   void createOffer() async {
+    print("VideoCallController createOffer");
     await initRenderers();
     await _createPeerConnection();
 
@@ -298,16 +311,17 @@ class VideoWebRTCController extends GetxController {
     }
   }
 
-  delayUpdated10() {
-    Future.delayed(Duration(seconds: 20), () {
-      print("Updating controller after 10 seconds...");
-      // Trigger an update to refresh UI or notify listeners
-      update();
+  void delayUpdated10() {
+    _delayTimer = Timer(Duration(seconds: 20), () {
+      if (!isEnd) {
+        print("Updating controller after 10 seconds...");
+        update(); // Trigger an update to refresh UI or notify listeners
+      }
     });
   }
 
   delayUpdated() async {
-    _peerConnection?.onTrack = (webrtc.RTCTrackEvent event) {
+    /*_peerConnection?.onTrack = (webrtc.RTCTrackEvent event) {
       print("Track received: ${event.track.kind}");
       if (event.streams.isNotEmpty) {
         _remoteStream = event.streams[1];
@@ -316,7 +330,7 @@ class VideoWebRTCController extends GetxController {
         print("Remote stream set");
         //update();
       }
-    };
+    };*/
 
     await initRenderers();
     await _createPeerConnection();
@@ -335,18 +349,26 @@ class VideoWebRTCController extends GetxController {
   }
 
   // Close the connection
-  void closeConnection() {
-    webRTCController.funStopTaking();
-    print("Closing WebRTC connection...");
+  void handleTerminate() async {
+    print("Terminate message received, closing connection...");
+    await _peerConnection?.close();
     _localStream?.dispose();
-    _localStream = null;
-
     _remoteStream?.dispose();
+    _peerConnection = null; // Reset the peer connection
+    _localStream = null;
     _remoteStream = null;
 
-    _peerConnection?.close();
-    _peerConnection = null;
+    Fluttertoast.showToast(
+      msg: "Connection terminated by remote peer.",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+    update();
   }
+
 
   Future<void> reinitializeWebRTC({bool useSoftwareCodec = false}) async {
     try {
@@ -397,24 +419,44 @@ class VideoWebRTCController extends GetxController {
   @override
   void onClose() {
     print("onCloseee");
-    closeConnection();
+    _delayTimer?.cancel();
     super.onClose();
   }
 
+
+  void _handleStop() {
+    _localStream?.getAudioTracks().first.enabled = false;
+  }
+
+  funStopTaking() {
+    _peerConnection?.close();
+    _localStream?.dispose();
+    //remoteStream?.dispose();
+    _peerConnection = null;
+
+    _handleStop();
+    _handleTerminate();
+
+  }
+
   void terminateCall() {
+    _handleStop();
     webRTCController.funStopTaking();
-    _sendToServer({'type': 'end_video_calling'});
-    _sendToServer({'type': 'terminate'});
+    _sendToServer({'type': 'endcalling'});
+    //_sendToServer({'type': 'terminate'});
   }
 
   void _sendToServer(Map<String, dynamic> message) {
     print("${CacheHelper.getData(key: userprofielkey) is int}");
     var userid = CacheHelper.getData(key: userprofielkey);
     var myuserid = CacheHelper.getData(key: useridKey);
+    message["screen"] = "video_call_screen";
     message["sender_id"] = myuserid;
     message["to_user_id"] = userid;
     print("sending to $userid");
     print("sending from $myuserid");
+    String jsonMessage = jsonEncode(message);
+    print("VideoCallController Sending message: $jsonMessage");
     socketController.sendToServer(message);
   }
 }

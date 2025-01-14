@@ -226,11 +226,6 @@ class ChatCallController extends GetxController {
 
 
 
-  void _handleWebSocketError(error) {
-    print("WebSocket error: $error");
-    _sendToServer({'type': 'terminate'});
-    Future.delayed(Duration(seconds: 1), _restartConnection);
-  }
 
   Future<void> _restartConnection() async {
     await peerConnection?.close();
@@ -239,13 +234,14 @@ class ChatCallController extends GetxController {
 
   void _handleSocketMessage(dynamic message) {
     final data = jsonDecode(message as String); // Cast 'message' to String before decoding
-    print("Data from socket: $message");
+    print("ChatCallController Data from socket: $message");
     CacheHelper.saveData(key: userprofielkey, value: data["sender_id"]);
 
     print(data['type']);
     print("UUUUUUUUUUUUUUUU${data["screen"]}");
 
-    if(data["screen"] == "chat"){
+
+    if(data["screen"] == "chat_call_screen"){
       switch (data['type']) {
         case 'calling':
           _handleCall(data);
@@ -521,9 +517,11 @@ class ChatCallController extends GetxController {
     var myuserid = CacheHelper.getData(key: useridKey);
     message["to_user_id"] = userid;
     message["sender_id"]=myuserid;
-    message["screen"] = "chat";
+    message["screen"] = "chat_call_screen";
     print("sending to $userid");
     print("sending from $myuserid");
+    String jsonMessage = jsonEncode(message);
+    print("ChatCallController Sending message: $jsonMessage");
     socketController.sendToServer(message);
   }
 
