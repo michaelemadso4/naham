@@ -57,6 +57,7 @@ class VideoCallScreen extends StatelessWidget {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
+
               controller.funStopTaking();
               controller.EndCall();
               controller.isEnd = true;

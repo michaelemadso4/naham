@@ -37,6 +37,9 @@ class VideoWebRTCController extends GetxController {
     print("init video");
     isEnd = false;
 
+    await initRenderers();
+    await _createPeerConnection();
+
     socketController.addMessageListener(_handleSocketMessage);
   }
 
@@ -49,7 +52,7 @@ class VideoWebRTCController extends GetxController {
     } catch (e) {
       print("Error initializing renderers: $e");
       _showToast("Error initializing video renderer. Retrying...", Colors.red);
-      await reinitializeWebRTC(useSoftwareCodec: true);
+      //await reinitializeWebRTC(useSoftwareCodec: true);
     }
   }
 
@@ -111,16 +114,46 @@ class VideoWebRTCController extends GetxController {
     _sendToServer({'type': 'endcalling'});
 
   }
-
+  void muteMic() {
+  try{
+    print("Mute mic");
+    if (_localStream != null) {
+      print("Mute mic null");
+      bool enabled = _localStream!.getAudioTracks()[0].enabled;
+      _localStream!.getAudioTracks()[0].enabled = !enabled;
+      _localStream?.getTracks().forEach((element) async {
+        await element.stop();
+      });
+    }
+  }catch(e){
+    print('Erorr mute mic ${e}');
+  }
+  }
   void _handleTerminate() async {
+
+    try {
+
 
     print("Terminate message received, closing connection...");
     await _peerConnection?.close();
-    _localStream?.dispose();
-    _remoteStream?.dispose();
+    await _peerConnection?.dispose();
+    _localStream?.getTracks().forEach((track) {
+      track.stop();
+    });
+    await _localStream?.dispose();
+    // Clean up any remote streams if applicable
+    _remoteStream?.getTracks().forEach((track) {
+      track.stop();
+    });
+
+    await _remoteStream?.dispose();
+
     webRTCController.funStopTaking();
     await localRenderer.dispose();
     await remoteRenderer.dispose();
+    await _peerConnection?.close();
+    socketController.removeMessageListener(_handleSocketMessage);
+
 
     Fluttertoast.showToast(
       msg: "Connection terminated by remote peer.",
@@ -129,7 +162,10 @@ class VideoWebRTCController extends GetxController {
       backgroundColor: Colors.red,
       textColor: Colors.white,
       fontSize: 16.0,
-    );
+    );}
+    catch(e) {
+    print("Erorr for handelTerminat${e}");
+    }
 
     // isTalking = false;
     //update();
@@ -225,7 +261,7 @@ class VideoWebRTCController extends GetxController {
       if (e.toString().contains("OMX.qcom.video.encoder")) {
         _showToast(
             "Error initializing video encoder. Falling back...", Colors.red);
-        await reinitializeWebRTC(useSoftwareCodec: true);
+        //await reinitializeWebRTC(useSoftwareCodec: true);
       }
     }
   }
@@ -298,7 +334,7 @@ class VideoWebRTCController extends GetxController {
   void createOffer() async {
     print("VideoCallController createOffer");
     await initRenderers();
-    await _createPeerConnection();
+    //await _createPeerConnection();
 
     var description = await _peerConnection?.createOffer();
     if(description != null) {
@@ -335,7 +371,7 @@ class VideoWebRTCController extends GetxController {
     };*/
 
     await initRenderers();
-    await _createPeerConnection();
+    //await _createPeerConnection();
   }
 
   // Create an answer in response to an offer
@@ -354,8 +390,17 @@ class VideoWebRTCController extends GetxController {
   void handleTerminate() async {
     print("Terminate message received, closing connection...");
     await _peerConnection?.close();
-    _localStream?.dispose();
-    _remoteStream?.dispose();
+    await _peerConnection?.dispose();
+    _localStream?.getTracks().forEach((track) {
+      track.stop();
+    });
+    await _localStream?.dispose();
+    // Clean up any remote streams if applicable
+    _remoteStream?.getTracks().forEach((track) {
+      track.stop();
+    });
+    await _remoteStream?.dispose();
+
     _peerConnection = null; // Reset the peer connection
     _localStream = null;
     _remoteStream = null;
@@ -431,11 +476,12 @@ class VideoWebRTCController extends GetxController {
   }
 
   funStopTaking() {
+    print("funStopTaking");
     _peerConnection?.close();
     _localStream?.dispose();
     //remoteStream?.dispose();
     _peerConnection = null;
-
+    muteMic();
     _handleStop();
     _handleTerminate();
 
@@ -447,6 +493,8 @@ class VideoWebRTCController extends GetxController {
     _sendToServer({'type': 'endcalling'});
     //_sendToServer({'type': 'terminate'});
   }
+
+
 
   void _sendToServer(Map<String, dynamic> message) {
     print("${CacheHelper.getData(key: userprofielkey) is int}");

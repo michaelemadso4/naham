@@ -167,6 +167,7 @@ class SocketController {
     }
   }
 
+
   // Close the WebSocket connection
   void closeConnection() {
     if (_isConnected) {
