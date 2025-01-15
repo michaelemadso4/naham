@@ -155,7 +155,7 @@ class LoginScreen extends StatelessWidget {
                                             fontSize: 25),
                                       ),
                                       Text(
-                                        'Lorem ipsum dolor sit amet,\nconsectetur adipiscing elit',
+                                        '',
                                         textScaleFactor:
                                         ScaleSize.textScaleFactor(context),
                                         style: TextStyle(

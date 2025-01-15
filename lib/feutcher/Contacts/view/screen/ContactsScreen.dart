@@ -158,14 +158,7 @@ class ContactsScreen extends StatelessWidget {
 
                                                     controller.SendCall();
                                                     Get.to(() => CallScreen(),
-                                                        arguments: {
-                                                          "userProfileKey":
-                                                              contactModel
-                                                                  .data![index]
-                                                                  .id,
-                                                          "is_start_talking":
-                                                              true,
-                                                        });
+                                                       );
                                                   },
                                                   icon: Icon(
                                                     Icons.call,

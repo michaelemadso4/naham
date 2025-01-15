@@ -150,16 +150,16 @@ class ChatScreen extends StatelessWidget {
                             Spacer(),
                             Row(
                               children: [
-                                IconButton(
-                                    onPressed: () {
-                                      Get.to(
-                                        () => CallScreen(),);
-                                      Get.delete<ChatMainController>();
-                                    },
-                                    icon: Icon(
-                                      Icons.call_outlined,
-                                      color: Colors.black,
-                                    )),
+                                // IconButton(
+                                //     onPressed: () {
+                                //       Get.to(
+                                //         () => CallScreen(),);
+                                //       Get.delete<ChatMainController>();
+                                //     },
+                                //     icon: Icon(
+                                //       Icons.call_outlined,
+                                //       color: Colors.red,
+                                //     )),
                                //video Call
                                 // IconButton(
                                 //     onPressed: () {},

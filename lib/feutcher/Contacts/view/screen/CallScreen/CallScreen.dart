@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
 import 'package:naham/feutcher/Contacts/controller/TimeController/TimeController.dart';
-import 'package:naham/feutcher/Contacts/controller/chatMainScreen/chatCallController.dart';
+import 'package:naham/feutcher/Contacts/controller/callScreenController/callScreenController.dart';
 import 'package:naham/feutcher/Contacts/controller/userinfoController.dart';
 import 'package:naham/feutcher/Contacts/model/userprofielmodel.dart';
 import 'package:naham/feutcher/Contacts/view/widgets/IconBtn/IconBtn.dart';
@@ -15,12 +17,20 @@ class CallScreen extends StatelessWidget {
   const CallScreen({super.key});
 
 
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     final Map<String, dynamic> arguments = Get.arguments ?? {};
     final bool? isStartTalking = arguments['is_start_talking'];
 
+    // CallScreenController callScreenController = Get.put(CallScreenController());
+    // if(isStartTalking == true) {
+    //   Timer(Duration(seconds: 2),() async {
+    //   await callScreenController.createOffer();
+    //   callScreenController.update();
+    //   });
+    //
+    //   print("isStartTalking${isStartTalking}");
+    // }
 
     var size, height, width;
     size = MediaQuery.of(context).size;
@@ -133,12 +143,7 @@ class CallScreen extends StatelessWidget {
                             return Body2txt(data: "${controller.formatTime(controller.counter)}");
                           }
                       )),
-                      Flexible(
-                          child: GetBuilder(
-                              init: ChatCallController(context),
-                              builder: (context) {
-                                return Text("");
-                              })),
+
                       Spacer(),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center ,
@@ -149,25 +154,27 @@ class CallScreen extends StatelessWidget {
                             child: CircleAvatar(
                               radius: 40  ,
                               backgroundColor: Colors.red,
-                              child: GetBuilder(
-                                  init: ChatCallController(context),
-                                  builder: (controller) {
-                                    if(isStartTalking == true) {
-                                        controller.createOffer();
-                                    }
-                                    return IconButton(
-                                      onPressed: () {
-                                        controller.funStopTaking();
-                                        controller.EndCall();
-                                        Get.back();
-                                      },
-                                      icon: Icon(
-                                        size: 45 ,
-                                        Icons.call_end,
-                                        color: Colors.white,
-                                      ),
-                                    );
-                                  }),
+                              child:GetBuilder(
+                                init:CallScreenController(),
+                                builder: (callScreenController) {
+                                  if(isStartTalking == true) {
+                                    callScreenController.createOffer();
+                                    print("isStartTalking${isStartTalking}");
+                                  }
+                                  return IconButton(
+                                    onPressed: () {
+                                      callScreenController.funStopTaking();
+                                      callScreenController.EndCall();
+                                      Get.back();
+                                    },
+                                    icon: Icon(
+                                      size: 45 ,
+                                      Icons.call_end,
+                                      color: Colors.white,
+                                    ),
+                                  );
+                                }
+                              ),
                             ),
                           ),
 
@@ -175,31 +182,7 @@ class CallScreen extends StatelessWidget {
                       ),
 
 
-/*
-                      Flexible(
-                          child: GetBuilder(
-                              init: ChatCallController(),
-                              builder: (controller) {
-                                return CircleAvatar(
-                                    backgroundColor: Colors.green,
-                                    child: IconButton(
-                                        onPressed: () {
-                                          controller.startTalking();
-                                        },
-                                        icon: Icon(Icons.call)));
-                              })),
-                       Flexible(
-                        child: GetBuilder(
-                          init: ChatCallController(),
-                          builder: (controller){
-                            return Container(
-                                width: 200, // Set the desired size
-                                height: 200,
-                                child: RTCVideoView(controller.remoteRenderer,
-                                ));
-                          },
-                        ),
-                      ),*/
+
 
                     ],
                   ),
